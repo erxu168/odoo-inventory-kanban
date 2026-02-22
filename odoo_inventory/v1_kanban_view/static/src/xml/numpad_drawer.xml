@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+<t t-name="inventory_kanban_count.NumpadDrawer">
+    <!-- Backdrop -->
+    <div class="o_inv_backdrop" t-att-class="{ open: state.isOpen }" t-on-click="onClose"/>
+
+    <!-- Drawer panel -->
+    <div class="o_inv_drawer" t-att-class="{ open: state.isOpen }">
+
+        <!-- Handle bar -->
+        <div class="o_inv_drawer_handle"><div class="o_handle_bar"/></div>
+
+        <!-- Product header -->
+        <div class="o_inv_drawer_product">
+            <div class="o_inv_dp_info">
+                <div class="o_inv_dp_cat">
+                    <t t-esc="props.record.data.product_id[1]?.split(' ')[0] || 'Product'"/>
+                </div>
+                <div class="o_inv_dp_name">
+                    <t t-esc="props.record.data.product_id[1]"/>
+                </div>
+                <div class="o_inv_dp_loc">
+                    <t t-esc="props.record.data.location_id[1]"/>
+                    <t t-if="props.record.data.lot_id">
+                        · Lot: <t t-esc="props.record.data.lot_id[1]"/>
+                    </t>
+                </div>
+            </div>
+            <button class="o_inv_drawer_close" t-on-click="onClose">
+                <i class="fa fa-times"/>
+            </button>
+        </div>
+
+        <!-- Display -->
+        <div class="o_inv_drawer_display">
+            <div class="o_inv_dd_main">
+                <div class="o_inv_dd_label">Counted qty</div>
+                <div t-att-class="'o_inv_dd_value' + (isEmpty ? ' empty' : '')">
+                    <t t-if="!isEmpty">
+                        <t t-esc="displayValue"/>
+                        <span class="o_inv_dd_unit">
+                            <t t-esc="props.record.data.product_uom_id?.[1] || ''"/>
+                        </span>
+                        <span class="o_inv_dd_cursor"/>
+                    </t>
+                    <t t-else="">
+                        <span class="o_inv_dd_placeholder">Enter count</span>
+                        <span class="o_inv_dd_cursor"/>
+                    </t>
+                </div>
+            </div>
+            <div class="o_inv_dd_side">
+                <div class="o_inv_dd_exp">
+                    <div class="o_inv_dd_exp_label">Expected</div>
+                    <div class="o_inv_dd_exp_val"><t t-esc="expectedQtyFormatted"/></div>
+                </div>
+                <div class="o_inv_dd_diff">
+                    <div class="o_inv_dd_diff_label">Diff</div>
+                    <div t-att-class="'o_inv_dd_diff_val ' + diffClass">
+                        <t t-esc="diffFormatted"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick sets -->
+        <div class="o_inv_quickset_row">
+            <t t-foreach="quickSets" t-as="qs" t-key="qs.value + qs.label">
+                <button
+                    t-att-class="'o_inv_qs' + (qs.cls ? ' ' + qs.cls : '')"
+                    t-on-click="() => onQuickSet(qs.value)"
+                >
+                    <t t-esc="qs.label"/>
+                </button>
+            </t>
+        </div>
+
+        <!-- Numpad grid -->
+        <div class="o_inv_numpad_grid">
+            <t t-foreach="['7','8','9','4','5','6','1','2','3']" t-as="k" t-key="k">
+                <button class="o_inv_nk" t-on-click="() => onKey(k)"><t t-esc="k"/></button>
+            </t>
+            <button class="o_inv_nk o_inv_nk_dot" t-on-click="() => onKey('.')">·</button>
+            <button class="o_inv_nk" t-on-click="() => onKey('0')">0</button>
+            <button class="o_inv_nk o_inv_nk_del" t-on-click="onDelete">
+                <i class="fa fa-long-arrow-left"/>
+            </button>
+        </div>
+
+        <!-- Actions -->
+        <div class="o_inv_drawer_actions">
+            <button class="o_inv_act_skip" t-on-click="onSkip">
+                <i class="fa fa-forward"/> Skip
+            </button>
+            <button
+                t-att-class="'o_inv_act_confirm' + (!confirmEnabled ? ' disabled' : '')"
+                t-on-click="onConfirm"
+            >
+                <i class="fa fa-check"/> Confirm Count
+            </button>
+        </div>
+
+    </div>
+</t>
+
+</templates>

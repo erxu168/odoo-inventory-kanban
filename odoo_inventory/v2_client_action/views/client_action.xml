@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Client Action: Inventory Count
+        Registered in the client action registry under tag "inventory_count_action".
+        The OWL component InventoryCountApp handles everything.
+    -->
+    <record id="action_inventory_count_client" model="ir.actions.client">
+        <field name="name">Inventory Count</field>
+        <field name="tag">inventory_count_action</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu entry -->
+    <menuitem
+        id="menu_inventory_count_client"
+        name="Inventory Count (Pro)"
+        parent="stock.menu_stock_inventory_moves"
+        action="action_inventory_count_client"
+        sequence="16"
+    />
+</odoo>

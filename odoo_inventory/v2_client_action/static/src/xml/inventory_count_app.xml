@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_action.InventoryCountApp">
+<div class="o_ica_root">
+
+    <!-- Loading -->
+    <t t-if="state.loading">
+        <div class="o_ica_loading">
+            <i class="fa fa-circle-o-notch fa-spin fa-2x text-muted"/>
+            <div class="mt-2 text-muted">Loading inventory…</div>
+        </div>
+    </t>
+
+    <t t-if="!state.loading">
+
+        <!-- ── HEADER ── -->
+        <div class="o_ica_header">
+            <div class="o_ica_header_top">
+                <div class="o_ica_title">Physical Inventory</div>
+                <button class="o_ica_validate_btn" t-on-click="onValidate">
+                    <i class="fa fa-check"/> Validate
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div class="o_ica_prog_row">
+                <div class="o_ica_prog_bar">
+                    <div class="o_ica_prog_fill" t-att-style="'width:' + progress.pct + '%'"/>
+                </div>
+                <span class="o_ica_prog_label">
+                    <b t-esc="progress.counted"/>/<span t-esc="progress.total"/>
+                </span>
+            </div>
+
+            <!-- Search + filter tabs -->
+            <div class="o_ica_search_row">
+                <div class="o_ica_search_wrap">
+                    <i class="fa fa-search o_ica_search_icon"/>
+                    <input
+                        class="o_ica_search_input"
+                        type="text"
+                        placeholder="Search product…"
+                        t-on-input="onSearchInput"
+                    />
+                </div>
+            </div>
+            <div class="o_ica_tabs">
+                <button t-att-class="'o_ica_tab' + (state.filter==='all'?' active':'')" t-on-click="() => setFilter('all')">All (<t t-esc="state.items.length"/>)</button>
+                <button t-att-class="'o_ica_tab' + (state.filter==='todo'?' active':'')" t-on-click="() => setFilter('todo')">To Count (<t t-esc="state.items.filter(i=>!i.inventory_quantity_set).length"/>)</button>
+                <button t-att-class="'o_ica_tab' + (state.filter==='done'?' active':'')" t-on-click="() => setFilter('done')">Done (<t t-esc="state.items.filter(i=>i.inventory_quantity_set).length"/>)</button>
+            </div>
+        </div>
+
+        <!-- ── COLUMN HEADERS ── -->
+        <div class="o_ica_col_headers">
+            <div class="o_ica_col_hdr">
+                <span class="o_ica_hdr_dot"/>
+                To Count
+                <span class="o_ica_hdr_count"><t t-esc="todoItems.length"/></span>
+            </div>
+            <div class="o_ica_col_hdr done">
+                <span class="o_ica_hdr_dot done"/>
+                Counted
+                <span class="o_ica_hdr_count done"><t t-esc="doneItems.length"/></span>
+            </div>
+        </div>
+
+        <!-- ── BOARD ── -->
+        <div class="o_ica_board">
+
+            <!-- TO COUNT column -->
+            <div class="o_ica_col">
+                <t t-if="todoItems.length === 0">
+                    <div class="o_ica_empty_col">
+                        <i class="fa fa-check-circle text-success fa-2x"/>
+                        <div>All items counted!</div>
+                    </div>
+                </t>
+                <t t-foreach="todoItems" t-as="item" t-key="item.id">
+                    <t t-call="inventory_count_action.KanbanCard">
+                        <t t-set="cardItem" t-value="item"/>
+                    </t>
+                </t>
+            </div>
+
+            <!-- COUNTED column -->
+            <div class="o_ica_col">
+                <t t-if="doneItems.length === 0">
+                    <div class="o_ica_empty_col">
+                        <i class="fa fa-inbox text-muted fa-2x"/>
+                        <div>No items yet</div>
+                    </div>
+                </t>
+                <t t-foreach="doneItems" t-as="item" t-key="item.id">
+                    <t t-call="inventory_count_action.KanbanCard">
+                        <t t-set="cardItem" t-value="item"/>
+                    </t>
+                </t>
+            </div>
+
+        </div>
+
+        <!-- ── NUMPAD DRAWER ── -->
+        <t t-if="activeItem">
+            <!-- Backdrop -->
+            <div class="o_ica_backdrop" t-on-click="closeDrawer"/>
+            <NumpadDrawer
+                item="activeItem"
+                onConfirm.bind="onConfirmCount"
+                onSkip.bind="onSkip"
+                onClose.bind="closeDrawer"
+            />
+        </t>
+
+    </t><!-- /!loading -->
+
+</div>
+</t>
+
+<!-- ════════════════════════════════════════════════════════
+     KANBAN CARD (shared template)
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_action.KanbanCard">
+    <t t-set="ds" t-value="getDiffState(cardItem)"/>
+    <div
+        t-att-class="'o_ica_kcard' + (cardItem.inventory_quantity_set ? ' done' : '') + (cardItem.id === state.activeItemId ? ' active' : '')"
+        t-on-click="() => openDrawer(cardItem.id)"
+    >
+        <!-- stripe -->
+        <div t-att-class="'o_ica_stripe stripe-' + ds"/>
+
+        <div class="o_ica_kcard_body">
+            <div class="o_ica_kcat" t-esc="cardItem.location_name"/>
+            <div class="o_ica_kname" t-esc="cardItem.product_name"/>
+
+            <div class="o_ica_kloc">
+                <i class="fa fa-map-marker"/> <t t-esc="cardItem.location_name"/>
+                <t t-if="cardItem.lot_name"> · <t t-esc="cardItem.lot_name"/></t>
+            </div>
+
+            <!-- Expected -->
+            <div class="o_ica_exp_row">
+                <span class="o_ica_exp_lbl">Expected</span>
+                <span class="o_ica_exp_val">
+                    <t t-esc="(cardItem.quantity || 0).toFixed(2)"/>
+                    <span class="o_ica_uom"> <t t-esc="cardItem.uom_name"/></span>
+                </span>
+            </div>
+
+            <!-- Count field -->
+            <div
+                t-att-class="'o_ica_count_field' + (cardItem.inventory_quantity_set ? ' is-counted' : '') + (cardItem.id === state.activeItemId ? ' focused' : '')"
+                t-on-click.stop="() => openDrawer(cardItem.id)"
+            >
+                <t t-if="cardItem.inventory_quantity_set">
+                    <span class="o_ica_cf_val">
+                        <t t-esc="(cardItem.inventory_quantity || 0).toFixed(2)"/>
+                        <t t-esc="' ' + cardItem.uom_name"/>
+                    </span>
+                    <i class="fa fa-pencil"/>
+                </t>
+                <t t-else="">
+                    <span class="o_ica_cf_placeholder">Tap to count…</span>
+                    <i class="fa fa-keyboard-o"/>
+                </t>
+            </div>
+
+            <!-- Status row -->
+            <div class="o_ica_status_row">
+                <span t-att-class="'o_ica_chip chip-' + ds">
+                    <span class="o_ica_dot"/>
+                    <t t-esc="getDiffLabel(cardItem)"/>
+                </span>
+                <t t-if="!cardItem.inventory_quantity_set">
+                    <button class="o_ica_match_btn" t-on-click.stop="() => onSetMatch(cardItem)">
+                        ✓ Match
+                    </button>
+                </t>
+            </div>
+        </div>
+    </div>
+</t>
+
+<!-- ════════════════════════════════════════════════════════
+     NUMPAD DRAWER
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_action.NumpadDrawer">
+<div class="o_ica_drawer open">
+    <div class="o_ica_drawer_handle"><div class="o_ica_handle_bar"/></div>
+
+    <!-- Product info -->
+    <div class="o_ica_drawer_product">
+        <div>
+            <div class="o_ica_dp_name" t-esc="props.item.product_name"/>
+            <div class="o_ica_dp_loc">
+                <t t-esc="props.item.location_name"/>
+                <t t-if="props.item.lot_name"> · <t t-esc="props.item.lot_name"/></t>
+            </div>
+        </div>
+        <button class="o_ica_drawer_close" t-on-click="() => props.onClose()">
+            <i class="fa fa-times"/>
+        </button>
+    </div>
+
+    <!-- Display -->
+    <div class="o_ica_dd_wrap">
+        <div class="o_ica_dd_main">
+            <div class="o_ica_dd_label">Counted qty</div>
+            <div t-att-class="'o_ica_dd_val' + (isEmpty ? ' empty' : '')">
+                <t t-if="!isEmpty">
+                    <t t-esc="state.inputStr"/>
+                    <span class="o_ica_dd_unit"> <t t-esc="uom"/></span>
+                </t>
+                <t t-else="">Enter count</t>
+                <span class="o_ica_cursor"/>
+            </div>
+        </div>
+        <div class="o_ica_dd_side">
+            <div class="o_ica_dd_exp">
+                <div class="o_ica_dd_exp_lbl">Expected</div>
+                <div class="o_ica_dd_exp_val"><t t-esc="expected.toFixed(2)"/> <t t-esc="uom"/></div>
+            </div>
+            <div class="o_ica_dd_diff">
+                <div class="o_ica_dd_diff_lbl">Diff</div>
+                <div t-att-class="'o_ica_dd_diff_val ' + diffClass"><t t-esc="diffFormatted"/></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick sets -->
+    <div class="o_ica_qs_row">
+        <t t-foreach="quickSets" t-as="qs" t-key="qs.label">
+            <button t-att-class="'o_ica_qs' + (qs.cls ? ' ' + qs.cls : '')"
+                    t-on-click="() => onQuickSet(qs.value)">
+                <t t-esc="qs.label"/>
+            </button>
+        </t>
+    </div>
+
+    <!-- Numpad -->
+    <div class="o_ica_numpad">
+        <t t-foreach="['7','8','9','4','5','6','1','2','3']" t-as="k" t-key="k">
+            <button class="o_ica_nk" t-on-click="() => onKey(k)"><t t-esc="k"/></button>
+        </t>
+        <button class="o_ica_nk nk-dot" t-on-click="() => onKey('.')">·</button>
+        <button class="o_ica_nk" t-on-click="() => onKey('0')">0</button>
+        <button class="o_ica_nk nk-del" t-on-click="onDelete"><i class="fa fa-long-arrow-left"/></button>
+    </div>
+
+    <!-- Actions -->
+    <div class="o_ica_drawer_acts">
+        <button class="o_ica_skip_btn" t-on-click="() => props.onSkip()">
+            <i class="fa fa-forward"/> Skip
+        </button>
+        <button t-att-class="'o_ica_confirm_btn' + (isEmpty ? ' disabled' : '')"
+                t-on-click="onConfirm">
+            <i class="fa fa-check"/> Confirm Count
+        </button>
+    </div>
+</div>
+</t>
+
+</templates>

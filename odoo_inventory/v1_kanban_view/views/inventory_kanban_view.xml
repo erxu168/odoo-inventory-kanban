@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inventory Kanban Count View
+        Replaces (or adds alongside) the default inventory adjustment view.
+        js_class="inventory_kanban_count" wires our custom OWL controller.
+    -->
+    <record id="stock_quant_inventory_kanban_count" model="ir.ui.view">
+        <field name="name">stock.quant.inventory.kanban.count</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <kanban
+                js_class="inventory_kanban_count"
+                default_group_by="inventory_diff_state"
+                class="o_inventory_kanban_count"
+            >
+                <!-- Fields loaded per record -->
+                <field name="id"/>
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="lot_id"/>
+                <field name="quantity"/>
+                <field name="inventory_quantity"/>
+                <field name="inventory_quantity_set"/>
+                <field name="inventory_diff"/>
+                <field name="inventory_diff_state"/>
+                <field name="inventory_counted"/>
+                <field name="product_uom_id"/>
+
+                <!-- Card template — rendered by our KanbanCountRecord component -->
+                <templates>
+                    <t t-name="inventory_kanban_count.KanbanCard">
+                        <!-- Handled entirely in OWL component -->
+                        <div class="o_kanban_card_placeholder"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action: open Physical Inventory with our kanban view -->
+    <record id="action_stock_inventory_kanban_count" model="ir.actions.act_window">
+        <field name="name">Physical Inventory (Kanban Count)</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="view_ids" eval="[(5,0,0),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('stock_quant_inventory_kanban_count')}),
+        ]"/>
+        <field name="domain">[('location_id.usage', '=', 'internal')]</field>
+        <field name="context">{
+            'inventory_mode': True,
+            'search_default_locationgroup': 1,
+        }</field>
+    </record>
+
+    <!-- Add menu entry under Inventory > Operations -->
+    <menuitem
+        id="menu_stock_inventory_kanban_count"
+        name="Physical Inventory (Kanban)"
+        parent="stock.menu_stock_inventory_moves"
+        action="action_stock_inventory_kanban_count"
+        sequence="15"
+    />
+</odoo>

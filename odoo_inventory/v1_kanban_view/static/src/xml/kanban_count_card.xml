@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+<t t-name="inventory_kanban_count.KanbanCountCard">
+    <div t-att-class="'o_inv_kcard' + (isCounted ? ' is-counted' : '')">
+
+        <!-- Top colour stripe -->
+        <div t-att-class="'o_inv_kcard_stripe ' + stripeClass"/>
+
+        <!-- Card body -->
+        <div class="o_inv_kcard_body">
+
+            <!-- Category / ref row -->
+            <div class="o_inv_kcard_cat_row">
+                <span class="o_inv_kcard_cat">
+                    <t t-esc="props.record.data.product_id[1]?.split('[')[0]?.trim() || 'Product'"/>
+                </span>
+            </div>
+
+            <!-- Product name -->
+            <div class="o_inv_kcard_name"><t t-esc="productName"/></div>
+
+            <!-- Location -->
+            <div class="o_inv_kcard_loc">
+                <i class="fa fa-map-marker"/> <t t-esc="locationName"/>
+                <t t-if="props.record.data.lot_id">
+                    &amp;nbsp;· <t t-esc="props.record.data.lot_id[1]"/>
+                </t>
+            </div>
+
+            <!-- Expected qty row -->
+            <div class="o_inv_kcard_expected_row">
+                <span class="o_inv_expected_lbl">Expected</span>
+                <span class="o_inv_expected_val">
+                    <t t-esc="expectedQty.toFixed(2)"/>
+                    <span class="o_inv_uom"> <t t-esc="uom"/></span>
+                </span>
+            </div>
+
+            <!-- Count field — tap opens drawer -->
+            <div
+                t-att-class="'o_inv_count_field' + (isCounted ? ' is-counted' : '')"
+                t-on-click.stop="openDrawer"
+            >
+                <t t-if="isCounted">
+                    <span class="o_inv_cf_value">
+                        <t t-esc="countedQty.toFixed(2)"/> <t t-esc="uom"/>
+                    </span>
+                    <i class="fa fa-pencil o_inv_cf_edit_icon"/>
+                </t>
+                <t t-else="">
+                    <span class="o_inv_cf_placeholder">Tap to count…</span>
+                    <i class="fa fa-keyboard-o o_inv_cf_icon"/>
+                </t>
+            </div>
+
+            <!-- Status row -->
+            <div class="o_inv_kcard_status_row">
+                <span t-att-class="'o_inv_status_chip ' + chipClass">
+                    <span class="o_inv_sdot"/>
+                    <t t-esc="chipLabel"/>
+                </span>
+                <t t-if="!isCounted">
+                    <button class="o_inv_match_btn" t-on-click.stop="onSetMatch">
+                        ✓ Match
+                    </button>
+                </t>
+            </div>
+
+        </div><!-- /kcard_body -->
+
+        <!-- Numpad drawer (portal-rendered) -->
+        <t t-if="state.drawerOpen">
+            <NumpadDrawer
+                record="props.record"
+                onConfirm.bind="onConfirm"
+                onSkip.bind="onSkip"
+                onClose.bind="closeDrawer"
+            />
+        </t>
+
+    </div>
+</t>
+
+</templates>

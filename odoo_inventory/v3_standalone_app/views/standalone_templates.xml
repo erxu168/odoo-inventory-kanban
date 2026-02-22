@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Shell template for the standalone inventory count app.
+        This is the HTML page served at /inventory-count.
+        The OWL app mounts into #inventory_count_root.
+    -->
+    <template id="standalone_index" name="Inventory Count Standalone">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+                <meta name="theme-color" content="#16142E"/>
+                <title>Inventory Count</title>
+                <!-- PWA manifest -->
+                <link rel="manifest" href="/inventory-count/manifest.json"/>
+                <!-- Our standalone asset bundle -->
+                <t t-call-assets="inventory_count_standalone.assets" t-css="true" t-js="false"/>
+            </t>
+            <t t-set="body_classname">o_standalone_inventory_count</t>
+            <!-- Mount point for the OWL app -->
+            <div id="inventory_count_root"/>
+            <!-- Scripts at end of body -->
+            <t t-call-assets="inventory_count_standalone.assets" t-css="false" t-js="true"/>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_standalone.App">
+<div class="o_sa_root">
+
+    <!-- ── STATUS BAR (simulated, mobile) ── -->
+    <div class="o_sa_sbar">
+        <span class="o_sa_time" id="sa_clock">--:--</span>
+        <span class="o_sa_sbar_right">
+            <i class="fa fa-wifi"/> <i class="fa fa-battery-three-quarters"/>
+        </span>
+    </div>
+
+    <!-- ── LOADING ── -->
+    <t t-if="state.loading">
+        <div class="o_sa_loading">
+            <div class="o_sa_spinner"/>
+            <div class="o_sa_loading_txt">Loading inventory…</div>
+        </div>
+    </t>
+
+    <!-- ── ERROR ── -->
+    <t t-if="state.error and !state.loading">
+        <div class="o_sa_error">
+            <i class="fa fa-exclamation-triangle fa-2x"/>
+            <div><t t-esc="state.error"/></div>
+            <button class="o_sa_retry_btn" t-on-click="loadData">Retry</button>
+        </div>
+    </t>
+
+    <t t-if="!state.loading and !state.error">
+
+        <!-- ── HEADER ── -->
+        <div class="o_sa_header">
+            <div class="o_sa_header_top">
+                <div class="o_sa_title">Physical Inventory</div>
+                <div class="o_sa_header_actions">
+                    <button class="o_sa_validate_btn"
+                            t-att-class="state.validating ? 'loading' : ''"
+                            t-on-click="onValidate">
+                        <t t-if="!state.validating"><i class="fa fa-check"/> Validate</t>
+                        <t t-else=""><i class="fa fa-circle-o-notch fa-spin"/> Saving…</t>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="o_sa_prog_row">
+                <div class="o_sa_prog_stats">
+                    <b t-esc="progress.counted"/> / <t t-esc="progress.total"/> counted
+                </div>
+                <div class="o_sa_prog_pct"><t t-esc="progress.pct"/>%</div>
+            </div>
+            <div class="o_sa_prog_track">
+                <div class="o_sa_prog_fill" t-att-style="'width:' + progress.pct + '%'"/>
+            </div>
+
+            <!-- Location filter -->
+            <select class="o_sa_loc_select" t-on-change="onLocationChange">
+                <option value="">All Locations</option>
+                <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
+                    <option t-att-value="loc.id" t-esc="loc.display_name"/>
+                </t>
+            </select>
+
+            <!-- Search -->
+            <div class="o_sa_search_wrap">
+                <i class="fa fa-search o_sa_search_ico"/>
+                <input
+                    type="text"
+                    class="o_sa_search_inp"
+                    placeholder="Search product or location…"
+                    t-on-input="onSearch"
+                />
+            </div>
+
+            <!-- Tabs -->
+            <div class="o_sa_tabs">
+                <button t-att-class="'o_sa_tab' + (state.filter==='all'?' active':'')"
+                        t-on-click="() => setFilter('all')">
+                    All <span class="o_sa_tab_n"><t t-esc="state.items.length"/></span>
+                </button>
+                <button t-att-class="'o_sa_tab' + (state.filter==='todo'?' active':'')"
+                        t-on-click="() => setFilter('todo')">
+                    To Count <span class="o_sa_tab_n"><t t-esc="todoItems.length"/></span>
+                </button>
+                <button t-att-class="'o_sa_tab' + (state.filter==='done'?' active':'')"
+                        t-on-click="() => setFilter('done')">
+                    Counted <span class="o_sa_tab_n"><t t-esc="doneItems.length"/></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ── COLUMN HEADERS ── -->
+        <div class="o_sa_col_headers">
+            <div class="o_sa_ch">
+                <span class="o_sa_ch_dot pending"/> To Count
+                <span class="o_sa_ch_badge"><t t-esc="todoItems.length"/></span>
+            </div>
+            <div class="o_sa_ch done">
+                <span class="o_sa_ch_dot done"/> Counted
+                <span class="o_sa_ch_badge done"><t t-esc="doneItems.length"/></span>
+            </div>
+        </div>
+
+        <!-- ── BOARD ── -->
+        <div class="o_sa_board">
+
+            <!-- TODO column -->
+            <div class="o_sa_col">
+                <t t-if="todoItems.length === 0">
+                    <div class="o_sa_empty_col">
+                        <i class="fa fa-check-circle fa-2x"/>
+                        <div>All items counted!</div>
+                    </div>
+                </t>
+                <t t-foreach="todoItems" t-as="item" t-key="item.id">
+                    <t t-call="inventory_count_standalone.KanbanCard">
+                        <t t-set="_item" t-value="item"/>
+                    </t>
+                </t>
+            </div>
+
+            <!-- DONE column -->
+            <div class="o_sa_col">
+                <t t-if="doneItems.length === 0">
+                    <div class="o_sa_empty_col">
+                        <i class="fa fa-inbox fa-2x"/>
+                        <div>Start counting!</div>
+                    </div>
+                </t>
+                <t t-foreach="doneItems" t-as="item" t-key="item.id">
+                    <t t-call="inventory_count_standalone.KanbanCard">
+                        <t t-set="_item" t-value="item"/>
+                    </t>
+                </t>
+            </div>
+
+        </div>
+
+        <!-- ── NUMPAD DRAWER ── -->
+        <t t-if="activeItem">
+            <div class="o_sa_backdrop" t-on-click="closeDrawer"/>
+            <NumpadDrawer
+                item="activeItem"
+                onConfirm.bind="onConfirmCount"
+                onSkip.bind="onSkip"
+                onClose.bind="closeDrawer"
+            />
+        </t>
+
+        <!-- ── TOAST ── -->
+        <t t-if="state.toast">
+            <Toast message="state.toast.message" type="state.toast.type"/>
+        </t>
+
+    </t>
+</div>
+</t>
+
+<!-- ════════════════════════════════════════════════════════
+     KANBAN CARD
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_standalone.KanbanCard">
+    <t t-set="_ds" t-value="getDiffState(_item)"/>
+    <div
+        t-att-class="'o_sa_kcard' + (_item.inventory_quantity_set ? ' done' : '') + (_item.id === state.activeItemId ? ' active' : '')"
+        t-on-click="() => openDrawer(_item.id)"
+    >
+        <div t-att-class="'o_sa_stripe stripe-' + _ds"/>
+        <div class="o_sa_kcard_body">
+            <div class="o_sa_kcat" t-esc="_item.location_name"/>
+            <div class="o_sa_kname" t-esc="_item.product_name"/>
+
+            <div class="o_sa_kloc">
+                <i class="fa fa-map-marker"/> <t t-esc="_item.location_name"/>
+                <t t-if="_item.lot_name"> · <t t-esc="_item.lot_name"/></t>
+            </div>
+
+            <div class="o_sa_exp_row">
+                <span class="o_sa_exp_lbl">Expected</span>
+                <span class="o_sa_exp_val">
+                    <t t-esc="(_item.quantity || 0).toFixed(2)"/>
+                    <span class="o_sa_uom"> <t t-esc="_item.uom_name"/></span>
+                </span>
+            </div>
+
+            <div
+                t-att-class="'o_sa_cf' + (_item.inventory_quantity_set ? ' counted' : '') + (_item.id === state.activeItemId ? ' focused' : '')"
+                t-on-click.stop="() => openDrawer(_item.id)"
+            >
+                <t t-if="_item.inventory_quantity_set">
+                    <span class="o_sa_cf_val">
+                        <t t-esc="(_item.inventory_quantity || 0).toFixed(2)"/>
+                        <t t-esc="' ' + _item.uom_name"/>
+                    </span>
+                    <i class="fa fa-pencil"/>
+                </t>
+                <t t-else="">
+                    <span class="o_sa_cf_ph">Tap to count…</span>
+                    <i class="fa fa-keyboard-o"/>
+                </t>
+            </div>
+
+            <div class="o_sa_status_row">
+                <span t-att-class="'o_sa_chip chip-' + _ds">
+                    <span class="o_sa_dot"/>
+                    <t t-esc="getDiffLabel(_item)"/>
+                </span>
+                <t t-if="!_item.inventory_quantity_set">
+                    <button class="o_sa_match_btn"
+                            t-on-click="(ev) => onSetMatch(_item, ev)">✓ Match</button>
+                </t>
+            </div>
+        </div>
+    </div>
+</t>
+
+<!-- ════════════════════════════════════════════════════════
+     NUMPAD DRAWER
+════════════════════════════════════════════════════════ -->
+<t t-name="inventory_count_standalone.NumpadDrawer">
+<div class="o_sa_drawer">
+    <div class="o_sa_drawer_handle"><div class="o_sa_handle_bar"/></div>
+
+    <div class="o_sa_dp">
+        <div>
+            <div class="o_sa_dp_name" t-esc="props.item.product_name"/>
+            <div class="o_sa_dp_loc">
+                <t t-esc="props.item.location_name"/>
+                <t t-if="props.item.lot_name"> · <t t-esc="props.item.lot_name"/></t>
+            </div>
+        </div>
+        <button class="o_sa_close_btn" t-on-click="() => props.onClose()">
+            <i class="fa fa-times"/>
+        </button>
+    </div>
+
+    <div class="o_sa_dd">
+        <div class="o_sa_dd_main">
+            <div class="o_sa_dd_lbl">Counted qty</div>
+            <div t-att-class="'o_sa_dd_val' + (isEmpty ? ' empty' : '')">
+                <t t-if="!isEmpty">
+                    <t t-esc="state.inputStr"/>
+                    <span class="o_sa_dd_unit"> <t t-esc="uom"/></span>
+                </t>
+                <t t-else="">Enter count</t>
+                <span class="o_sa_cursor"/>
+            </div>
+        </div>
+        <div class="o_sa_dd_side">
+            <div class="o_sa_dd_exp">
+                <div class="o_sa_dd_exp_lbl">Expected</div>
+                <div class="o_sa_dd_exp_val"><t t-esc="expected.toFixed(2)"/> <t t-esc="uom"/></div>
+            </div>
+            <div class="o_sa_dd_diff">
+                <div class="o_sa_dd_diff_lbl">Diff</div>
+                <div t-att-class="'o_sa_dd_diff_val ' + diffClass"><t t-esc="diffFormatted"/></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="o_sa_qs_row">
+        <t t-foreach="quickSets" t-as="qs" t-key="qs.label">
+            <button t-att-class="'o_sa_qs' + (qs.cls ? ' ' + qs.cls : '')"
+                    t-on-click="() => onQuickSet(qs.value)">
+                <t t-esc="qs.label"/>
+            </button>
+        </t>
+    </div>
+
+    <div class="o_sa_numpad">
+        <t t-foreach="['7','8','9','4','5','6','1','2','3']" t-as="k" t-key="k">
+            <button class="o_sa_nk" t-on-click="() => onKey(k)"><t t-esc="k"/></button>
+        </t>
+        <button class="o_sa_nk nk-dot" t-on-click="() => onKey('.')">·</button>
+        <button class="o_sa_nk" t-on-click="() => onKey('0')">0</button>
+        <button class="o_sa_nk nk-del" t-on-click="onDelete"><i class="fa fa-long-arrow-left"/></button>
+    </div>
+
+    <div class="o_sa_acts">
+        <button class="o_sa_skip" t-on-click="() => props.onSkip()">
+            <i class="fa fa-forward"/> Skip
+        </button>
+        <button
+            t-att-class="'o_sa_confirm' + (isEmpty || state.saving ? ' disabled' : '')"
+            t-on-click="onConfirm"
+        >
+            <t t-if="!state.saving"><i class="fa fa-check"/> Confirm Count</t>
+            <t t-else=""><i class="fa fa-circle-o-notch fa-spin"/> Saving…</t>
+        </button>
+    </div>
+</div>
+</t>
+
+<!-- Toast -->
+<t t-name="inventory_count_standalone.Toast">
+<div t-att-class="'o_sa_toast toast-' + props.type">
+    <i t-att-class="'fa ' + (props.type === 'success' ? 'fa-check-circle' : props.type === 'warning' ? 'fa-exclamation-circle' : 'fa-times-circle')"/>
+    <span t-esc="props.message"/>
+</div>
+</t>
+
+</templates>

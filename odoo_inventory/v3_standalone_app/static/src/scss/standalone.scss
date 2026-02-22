@@ -1,0 +1,355 @@
+// ============================================================
+// Inventory Count — Standalone App SCSS
+// Mobile-first, full-screen, PWA-ready
+// ============================================================
+
+$brand:      #4B35D4;
+$brand2:     #7B63F5;
+$success:    #059669;
+$success-lt: #D1FAE5;
+$warn:       #D97706;
+$warn-lt:    #FEF3C7;
+$danger:     #DC2626;
+$danger-lt:  #FEE2E2;
+$ink:        #16142E;
+$muted:      #7A778F;
+$muted2:     #AEABC4;
+$line:       #E2E0EF;
+$bg:         #F0EFF8;
+
+// Full bleed on mobile
+body.o_standalone_inventory_count {
+    margin: 0; padding: 0;
+    background: $ink;
+    overflow: hidden;
+    height: 100dvh;
+}
+
+.o_sa_root {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    background: $bg;
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+// ── Status bar ───────────────────────────────────────────────
+
+.o_sa_sbar {
+    background: $ink;
+    padding: 10px 18px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    .o_sa_time { color: white; font-size: 13px; font-weight: 600; font-family: monospace; }
+    .o_sa_sbar_right { color: rgba(255,255,255,.6); font-size: 12px; display: flex; gap: 8px; }
+}
+
+// ── Loading / Error ───────────────────────────────────────────
+
+.o_sa_loading, .o_sa_error {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; color: $muted; text-align: center; padding: 40px;
+}
+.o_sa_spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid $line; border-top-color: $brand;
+    animation: sa_spin .8s linear infinite;
+    @keyframes sa_spin { to { transform: rotate(360deg); } }
+}
+.o_sa_retry_btn {
+    margin-top: 8px; padding: 8px 20px; border-radius: 9px;
+    background: $brand; color: white; border: none; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+
+// ── Header ───────────────────────────────────────────────────
+
+.o_sa_header {
+    background: $ink;
+    padding: 8px 14px 0;
+    flex-shrink: 0;
+}
+
+.o_sa_header_top {
+    display: flex; align-items: center; margin-bottom: 10px;
+    .o_sa_title { color: white; font-size: 17px; font-weight: 700; flex: 1; }
+}
+
+.o_sa_validate_btn {
+    background: $success; color: white; border: none;
+    border-radius: 9px; padding: 7px 14px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: background .15s;
+    i { margin-right: 5px; }
+    &:hover { background: darken($success, 8%); }
+    &.loading { background: $muted; cursor: wait; }
+}
+
+.o_sa_prog_row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; margin-bottom: 5px;
+    color: rgba(255,255,255,.5);
+    b { color: rgba(255,255,255,.9); }
+    .o_sa_prog_pct { color: $brand2; font-weight: 700; }
+}
+.o_sa_prog_track {
+    height: 4px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; margin-bottom: 10px;
+    .o_sa_prog_fill { height: 100%; background: linear-gradient(90deg, $brand2, #A78BFA); border-radius: 99px; transition: width .6s ease; }
+}
+
+.o_sa_loc_select {
+    width: 100%; margin-bottom: 8px;
+    background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.1);
+    border-radius: 9px; padding: 7px 10px;
+    color: rgba(255,255,255,.8); font-size: 13px; outline: none;
+    option { background: $ink; }
+    &:focus { border-color: $brand2; }
+}
+
+.o_sa_search_wrap {
+    position: relative; margin-bottom: 8px;
+    .o_sa_search_ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.4); font-size: 12px; }
+    .o_sa_search_inp {
+        width: 100%; background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.1);
+        border-radius: 9px; padding: 7px 12px 7px 30px;
+        color: white; font-size: 13px; outline: none;
+        &::placeholder { color: rgba(255,255,255,.3); }
+        &:focus { border-color: $brand2; }
+    }
+}
+
+.o_sa_tabs {
+    display: flex; gap: 3px; overflow-x: auto;
+    &::-webkit-scrollbar { display: none; }
+
+    .o_sa_tab {
+        padding: 6px 12px; border-radius: 9px 9px 0 0; border: none;
+        background: rgba(255,255,255,.07); color: rgba(255,255,255,.5);
+        font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+        transition: all .15s; flex-shrink: 0;
+
+        &.active { background: $bg; color: $brand; }
+        &:hover:not(.active) { background: rgba(255,255,255,.12); color: white; }
+
+        .o_sa_tab_n {
+            background: rgba(255,255,255,.15); color: inherit;
+            font-size: 10px; font-weight: 700; padding: 0 5px;
+            border-radius: 99px; margin-left: 4px;
+        }
+        &.active .o_sa_tab_n { background: rgba($brand,.12); }
+    }
+}
+
+// ── Column headers ────────────────────────────────────────────
+
+.o_sa_col_headers {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 8px 12px 4px; gap: 8px; flex-shrink: 0;
+
+    .o_sa_ch {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: $muted;
+        &.done { color: $success; }
+
+        .o_sa_ch_dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+            &.pending { background: $muted2; }
+            &.done { background: $success; }
+        }
+
+        .o_sa_ch_badge {
+            margin-left: auto; background: $line; color: $muted;
+            font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 700;
+            &.done { background: $success-lt; color: $success; }
+        }
+    }
+}
+
+// ── Board ─────────────────────────────────────────────────────
+
+.o_sa_board {
+    display: grid; grid-template-columns: 1fr 1fr;
+    flex: 1; overflow: hidden; padding: 0 8px;
+
+    .o_sa_col {
+        display: flex; flex-direction: column; gap: 7px;
+        overflow-y: auto; padding: 4px 4px 80px;
+        &::-webkit-scrollbar { display: none; }
+    }
+}
+
+.o_sa_empty_col {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 28px 10px;
+    color: $muted2; font-size: 11px; text-align: center; gap: 8px;
+    i { color: $line; }
+}
+
+// ── Kanban card ───────────────────────────────────────────────
+
+.o_sa_kcard {
+    background: white; border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(22,20,46,.08);
+    overflow: hidden; cursor: pointer;
+    transition: box-shadow .15s;
+    animation: sa_card_in .28s cubic-bezier(.4,0,.2,1) both;
+    @keyframes sa_card_in {
+        from { opacity: 0; transform: translateY(8px) scale(.96); }
+        to   { opacity: 1; transform: none; }
+    }
+
+    &:hover { box-shadow: 0 5px 18px rgba(22,20,46,.12); }
+    &.done  { background: #F0FDF6; }
+    &.active { box-shadow: 0 0 0 2px $brand, 0 5px 18px rgba(22,20,46,.1); }
+
+    .o_sa_stripe {
+        height: 3px;
+        &.stripe-pending { background: $line; }
+        &.stripe-match   { background: $success; }
+        &.stripe-over    { background: $danger; }
+        &.stripe-short   { background: $warn; }
+    }
+
+    .o_sa_kcard_body { padding: 9px 10px 9px; }
+
+    .o_sa_kcat { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: $brand; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .o_sa_kname { font-size: 12px; font-weight: 700; color: $ink; line-height: 1.25; margin-bottom: 4px; }
+    .o_sa_kloc  { font-size: 10px; color: $muted2; margin-bottom: 6px; i { margin-right: 3px; } }
+
+    .o_sa_exp_row {
+        display: flex; align-items: center; justify-content: space-between;
+        background: $bg; border-radius: 6px; padding: 4px 7px; margin-bottom: 6px;
+        .o_sa_exp_lbl { font-size: 9px; color: $muted2; }
+        .o_sa_exp_val { font-family: monospace; font-size: 11px; font-weight: 700; color: $ink; }
+        .o_sa_uom { color: $muted2; font-size: 9px; }
+    }
+
+    .o_sa_cf {
+        width: 100%; background: $bg; border: 1.5px solid $line; border-radius: 8px;
+        padding: 5px 8px; display: flex; align-items: center; justify-content: space-between;
+        cursor: pointer; transition: all .15s;
+
+        &:hover { border-color: $muted2; }
+        &.focused { border-color: $brand; box-shadow: 0 0 0 3px rgba($brand,.1); }
+        &.counted { background: $success-lt; border-color: transparent; }
+
+        .o_sa_cf_val { font-family: monospace; font-size: 12px; font-weight: 700; color: $success; }
+        .o_sa_cf_ph  { font-size: 10px; color: $muted2; }
+        i { font-size: 11px; color: $muted2; }
+    }
+
+    .o_sa_status_row { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; }
+
+    .o_sa_chip {
+        display: inline-flex; align-items: center; gap: 3px;
+        font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 99px;
+        .o_sa_dot { width: 4px; height: 4px; border-radius: 50%; }
+        &.chip-pending { background: $line; color: $muted; .o_sa_dot { background: $muted2; } }
+        &.chip-match   { background: $success-lt; color: $success; .o_sa_dot { background: $success; } }
+        &.chip-over    { background: $danger-lt; color: $danger; .o_sa_dot { background: $danger; } }
+        &.chip-short   { background: $warn-lt; color: $warn; .o_sa_dot { background: $warn; } }
+    }
+
+    .o_sa_match_btn {
+        font-size: 9px; font-weight: 700; color: $success;
+        background: $success-lt; border: none; border-radius: 5px;
+        padding: 2px 7px; cursor: pointer;
+    }
+}
+
+// ── Backdrop ──────────────────────────────────────────────────
+
+.o_sa_backdrop {
+    position: fixed; inset: 0;
+    background: rgba(22,20,46,.4); z-index: 1040;
+}
+
+// ── Numpad Drawer ─────────────────────────────────────────────
+
+.o_sa_drawer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 40px rgba(22,20,46,.2);
+    z-index: 1050;
+    animation: sa_drawer_in .32s cubic-bezier(.4,0,.2,1) both;
+    @keyframes sa_drawer_in { from { transform: translateY(100%); } to { transform: none; } }
+
+    .o_sa_drawer_handle { display: flex; justify-content: center; padding: 10px 0 4px; }
+    .o_sa_handle_bar { width: 34px; height: 4px; background: $line; border-radius: 99px; }
+
+    .o_sa_dp {
+        padding: 4px 16px 10px; border-bottom: 1px solid $line;
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+        .o_sa_dp_name { font-size: 15px; font-weight: 700; color: $ink; line-height: 1.2; }
+        .o_sa_dp_loc  { font-size: 11px; color: $muted2; margin-top: 2px; }
+    }
+
+    .o_sa_close_btn {
+        width: 26px; height: 26px; border-radius: 7px; background: $bg;
+        border: none; cursor: pointer; color: $muted; font-size: 13px;
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 2px; flex-shrink: 0;
+    }
+
+    .o_sa_dd {
+        padding: 8px 16px 6px; display: flex; align-items: flex-end; gap: 10px;
+
+        .o_sa_dd_main { flex: 1; }
+        .o_sa_dd_lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: $muted2; margin-bottom: 3px; }
+        .o_sa_dd_val {
+            font-family: monospace; font-size: 34px; font-weight: 700; color: $ink; line-height: 1;
+            display: flex; align-items: center;
+            &.empty { color: $muted2; font-size: 20px; font-family: inherit; font-weight: 400; }
+            .o_sa_dd_unit { font-size: 13px; color: $muted2; margin-left: 4px; font-family: inherit; font-weight: 400; }
+            .o_sa_cursor { display: inline-block; width: 2px; height: 28px; background: $brand; border-radius: 2px; margin-left: 3px; animation: sa_blink .7s ease infinite; @keyframes sa_blink { 0%,100%{opacity:1} 50%{opacity:0} } }
+        }
+        .o_sa_dd_side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; padding-bottom: 3px; }
+        .o_sa_dd_exp { text-align: right; .o_sa_dd_exp_lbl { font-size: 9px; color: $muted2; font-weight: 600; text-transform: uppercase; } .o_sa_dd_exp_val { font-family: monospace; font-size: 12px; font-weight: 600; color: $ink; } }
+        .o_sa_dd_diff { background: $bg; border-radius: 6px; padding: 3px 8px; text-align: right; .o_sa_dd_diff_lbl { font-size: 9px; color: $muted2; font-weight: 600; text-transform: uppercase; } .o_sa_dd_diff_val { font-family: monospace; font-size: 13px; font-weight: 700; &.pos { color: $warn; } &.neg { color: $danger; } &.zero { color: $success; } &.none { color: $muted2; } } }
+    }
+
+    .o_sa_qs_row {
+        display: flex; gap: 5px; padding: 4px 16px 7px; flex-wrap: wrap;
+        .o_sa_qs { padding: 4px 11px; border-radius: 7px; border: 1.5px solid $line; background: white; font-family: monospace; font-size: 11px; font-weight: 600; color: $ink; cursor: pointer; transition: all .12s;
+            &:hover { border-color: $brand; color: $brand; }
+            &.match { background: $success-lt; color: $success; border-color: transparent; font-family: inherit; }
+            &.clear { color: $muted; font-family: inherit; }
+        }
+    }
+
+    .o_sa_numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 5px 14px 7px;
+        .o_sa_nk { height: 50px; border-radius: 11px; background: $bg; border: none; font-family: monospace; font-size: 20px; font-weight: 600; color: $ink; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .1s, transform .08s; box-shadow: 0 1px 3px rgba(22,20,46,.05);
+            &:active { transform: scale(.88); background: $line; }
+            &.nk-dot { font-size: 24px; color: $muted; }
+            &.nk-del { color: $muted; font-size: 14px; }
+        }
+    }
+
+    .o_sa_acts { display: grid; grid-template-columns: 1fr 2.5fr; gap: 7px; padding: 4px 14px 28px;
+        .o_sa_skip { height: 48px; border-radius: 12px; border: 2px solid $line; background: white; font-size: 13px; font-weight: 700; color: $muted; cursor: pointer; transition: all .15s; i { margin-right: 4px; } &:hover { border-color: $muted; } }
+        .o_sa_confirm { height: 48px; border-radius: 12px; border: none; background: linear-gradient(135deg, $brand, $brand2); color: white; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 18px rgba($brand,.35); transition: all .15s; i { margin-right: 5px; } &:hover { box-shadow: 0 6px 24px rgba($brand,.5); } &.disabled { background: $line; color: $muted2; box-shadow: none; cursor: not-allowed; } }
+    }
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+
+.o_sa_toast {
+    position: fixed; bottom: 24px; left: 14px; right: 14px;
+    border-radius: 12px; padding: 11px 14px;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px; font-weight: 600; color: white;
+    z-index: 2000;
+    animation: sa_toast_in .28s cubic-bezier(.4,0,.2,1), sa_toast_out .28s cubic-bezier(.4,0,.2,1) 2.2s both;
+    @keyframes sa_toast_in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+    @keyframes sa_toast_out { to { opacity: 0; transform: translateY(20px); } }
+
+    i { font-size: 16px; }
+    &.toast-success { background: #064E3B; }
+    &.toast-warning { background: #78350F; }
+    &.toast-error   { background: #7F1D1D; }
+}

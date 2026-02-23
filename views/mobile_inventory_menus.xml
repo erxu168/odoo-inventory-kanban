@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Mobile Physical Inventory under Inventory > Operations -->
+    <menuitem
+        id="menu_mobile_physical_inventory"
+        name="Mobile View: Physical Inventory"
+        parent="stock.menu_stock_adjustments"
+        action="action_mobile_physical_inventory"
+        sequence="25"
+        groups="stock.group_stock_user"
+    />
+</odoo>

@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!-- ============================================================
+     Mobile Physical Inventory - Main App Template
+     ============================================================ -->
+<t t-name="mobile_physical_inventory.App">
+    <div class="o_mobile_inventory_app">
+
+        <!-- Header -->
+        <div class="mpi-header">
+            <h1>
+                <i class="fa fa-cubes"/>
+                Physical Inventory
+            </h1>
+            <div class="mpi-header-actions">
+                <button class="mpi-btn mpi-btn-secondary mpi-btn-sm" t-on-click="refreshData">
+                    <i class="fa fa-refresh"/>
+                    Refresh
+                </button>
+                <button class="mpi-btn mpi-btn-success mpi-btn-sm" t-on-click="showApplyConfirm">
+                    <i class="fa fa-check"/>
+                    Apply All
+                </button>
+            </div>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div class="mpi-scroll-body">
+
+        <!-- Filters -->
+        <div class="mpi-filters">
+            <div class="mpi-search-wrap">
+                <i class="fa fa-search"/>
+                <input
+                    type="text"
+                    class="mpi-search-input"
+                    placeholder="Search product..."
+                    t-model="state.searchText"
+                    t-on-input="onSearchInput"
+                />
+            </div>
+            <select class="mpi-location-select" t-on-change="onLocationChange">
+                <option value="">All Locations</option>
+                <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
+                    <option t-att-value="loc.id" t-att-selected="state.selectedLocation == loc.id">
+                        <t t-esc="loc.name"/>
+                    </option>
+                </t>
+            </select>
+        </div>
+
+        <!-- Stats -->
+        <div class="mpi-stats">
+            <div class="mpi-stat-chip">
+                <i class="fa fa-list-ul"/>
+                Total: <t t-esc="state.totalCount"/>
+            </div>
+            <div class="mpi-stat-chip done">
+                <i class="fa fa-check-circle"/>
+                Counted: <t t-esc="state.countedItems"/>
+            </div>
+            <div class="mpi-stat-chip diff">
+                <i class="fa fa-exclamation-circle"/>
+                Differences: <t t-esc="state.diffItems"/>
+            </div>
+        </div>
+
+        <!-- Apply Confirm Banner -->
+        <t t-if="state.showApplyBanner">
+            <div class="mpi-apply-confirm">
+                <i class="fa fa-exclamation-triangle"/>
+                <div class="mpi-apply-confirm-text">
+                    This will apply all inventory adjustments and create stock moves. Are you sure?
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                    <button class="mpi-btn mpi-btn-success mpi-btn-sm" t-on-click="applyAll">
+                        <i class="fa fa-check"/> Yes
+                    </button>
+                    <button class="mpi-btn mpi-btn-sm" style="background:#f1f5f9;color:#555;" t-on-click="hideApplyBanner">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </t>
+
+        <!-- Loading -->
+        <t t-if="state.loading">
+            <div class="mpi-loading">
+                <div class="mpi-spinner"/>
+                Loading inventory...
+            </div>
+        </t>
+
+        <!-- Empty State -->
+        <t t-elif="state.quants.length === 0">
+            <div class="mpi-empty">
+                <i class="fa fa-inbox"/>
+                <p>No products found</p>
+                <span>Try a different search or location</span>
+            </div>
+        </t>
+
+        <!-- Product Cards -->
+        <t t-else="">
+            <div class="mpi-card-list">
+                <t t-foreach="state.quants" t-as="quant" t-key="quant.id">
+                    <t t-call="mobile_physical_inventory.QuantCard"/>
+                </t>
+            </div>
+
+            <!-- Load More -->
+            <t t-if="state.hasMore">
+                <div class="mpi-load-more">
+                    <button class="mpi-btn mpi-btn-primary" t-on-click="loadMore">
+                        <i class="fa fa-arrow-down"/>
+                        Load More
+                    </button>
+                </div>
+            </t>
+        </t>
+
+        </div><!-- end mpi-scroll-body -->
+
+        <!-- Floating Add Button -->
+        <button class="mpi-fab" t-on-click="showAddModal" title="Add product to inventory">
+            <i class="fa fa-plus"/>
+        </button>
+
+        <!-- Add Product Modal -->
+        <t t-if="state.showModal">
+            <t t-call="mobile_physical_inventory.AddModal"/>
+        </t>
+
+    </div>
+</t>
+
+<!-- ============================================================
+     Quant Card Template
+     ============================================================ -->
+<t t-name="mobile_physical_inventory.QuantCard">
+    <div t-attf-class="mpi-card #{quant.modified ? 'modified' : ''} #{getDiffClass(quant)}">
+
+        <!-- Card Header -->
+        <div class="mpi-card-header">
+            <div class="mpi-product-info">
+                <!-- Category badge -->
+                <t t-if="quant.product_category">
+                    <span class="mpi-product-category">
+                        <t t-esc="quant.product_category"/>
+                    </span>
+                </t>
+                <!-- Clean product name -->
+                <div class="mpi-product-name"><t t-esc="quant.product_name"/></div>
+                <!-- Reference code + lot on same row -->
+                <div class="mpi-product-meta">
+                    <t t-if="quant.product_default_code">
+                        <span class="mpi-product-code">
+                            <i class="fa fa-barcode"/> <t t-esc="quant.product_default_code"/>
+                        </span>
+                    </t>
+                    <t t-if="quant.lot_name">
+                        <span class="mpi-product-lot">
+                            <i class="fa fa-tag"/> Lot: <t t-esc="quant.lot_name"/>
+                        </span>
+                    </t>
+                </div>
+            </div>
+            <span class="mpi-location-badge" t-att-title="quant.location_name">
+                <i class="fa fa-map-marker"/> <t t-esc="quant.location_name"/>
+            </span>
+        </div>
+
+        <!-- Quantity Info -->
+        <div class="mpi-qty-section">
+            <div class="mpi-qty-block">
+                <div class="mpi-qty-label">On Hand</div>
+                <div class="mpi-qty-value">
+                    <t t-esc="formatQty(quant.quantity)"/>
+                    <span class="mpi-uom"><t t-esc="quant.product_uom"/></span>
+                </div>
+            </div>
+            <div class="mpi-qty-block">
+                <div class="mpi-qty-label">Counted</div>
+                <div t-attf-class="mpi-qty-value #{quant.modified ? 'positive' : ''}">
+                    <t t-esc="formatQty(quant.inventory_quantity)"/>
+                    <span class="mpi-uom"><t t-esc="quant.product_uom"/></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Controls -->
+        <div class="mpi-input-row">
+            <button class="mpi-qty-btn minus" t-on-click="() => this.adjustQty(quant, -1)">−</button>
+            <input
+                type="number"
+                class="mpi-qty-input"
+                t-att-value="quant.inventory_quantity"
+                t-att-data-quant-id="quant.id"
+                t-on-change="(ev) => this.onQtyChange(quant, ev)"
+                t-on-focus="selectAll"
+                inputmode="decimal"
+                min="0"
+                step="1"
+            />
+            <button class="mpi-qty-btn plus" t-on-click="() => this.adjustQty(quant, 1)">+</button>
+        </div>
+
+        <!-- Diff Badge -->
+        <t t-if="quant.inventory_diff_quantity !== 0">
+            <div class="mpi-diff-row">
+                <span t-attf-class="mpi-diff-badge #{quant.inventory_diff_quantity > 0 ? 'positive' : 'negative'}">
+                    <t t-esc="quant.inventory_diff_quantity > 0 ? '+' : ''"/>
+                    <t t-esc="formatQty(quant.inventory_diff_quantity)"/>
+                    <t t-raw="' '"/>
+                    <t t-esc="quant.product_uom"/>
+                    difference
+                </span>
+            </div>
+        </t>
+
+    </div>
+</t>
+
+<!-- ============================================================
+     Add Product Modal Template
+     ============================================================ -->
+<t t-name="mobile_physical_inventory.AddModal">
+    <div class="mpi-modal-overlay" t-on-click="hideModalOnOverlay">
+        <div class="mpi-modal" t-on-click.stop="">
+            <h3><i class="fa fa-plus-circle" style="color:#1a73e8;margin-right:8px;"/>Add Product to Count</h3>
+
+            <div class="mpi-modal-field">
+                <label>Location</label>
+                <select t-model="state.newEntry.location_id">
+                    <option value="">-- Select Location --</option>
+                    <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
+                        <option t-att-value="loc.id"><t t-esc="loc.name"/></option>
+                    </t>
+                </select>
+            </div>
+
+            <div class="mpi-modal-field">
+                <label>Product</label>
+                <input
+                    type="text"
+                    placeholder="Search product..."
+                    t-model="state.newEntry.productSearch"
+                    t-on-input="onProductSearch"
+                />
+                <t t-if="state.productSuggestions.length > 0">
+                    <div style="border:1px solid #ddd;border-radius:8px;margin-top:4px;overflow:hidden;max-height:160px;overflow-y:auto;">
+                        <t t-foreach="state.productSuggestions" t-as="prod" t-key="prod.id">
+                            <div
+                                style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:0.9rem;"
+                                t-on-click="() => this.selectProduct(prod)"
+                            >
+                                <b><t t-esc="prod.display_name"/></b>
+                                <t t-if="prod.default_code">
+                                    <span style="color:#888;margin-left:6px;">(<t t-esc="prod.default_code"/>)</span>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+
+            <div class="mpi-modal-field">
+                <label>Counted Quantity</label>
+                <input
+                    type="number"
+                    t-model="state.newEntry.quantity"
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                    inputmode="decimal"
+                />
+            </div>
+
+            <div class="mpi-modal-actions">
+                <button class="mpi-btn mpi-btn-primary" t-on-click="saveNewEntry">
+                    <i class="fa fa-save"/> Save
+                </button>
+                <button class="mpi-btn" style="background:#f1f5f9;color:#555;flex:1;justify-content:center;" t-on-click="hideModal">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</t>
+
+</templates>

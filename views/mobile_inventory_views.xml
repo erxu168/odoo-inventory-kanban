@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client Action for Mobile Physical Inventory -->
+    <record id="action_mobile_physical_inventory" model="ir.actions.client">
+        <field name="name">Mobile Physical Inventory</field>
+        <field name="tag">mobile_physical_inventory</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

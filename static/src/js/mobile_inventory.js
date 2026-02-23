@@ -55,6 +55,11 @@ class MobilePhysicalInventory extends Component {
                 quantity: 0,
             },
             productSuggestions: [],
+            numpad: {
+                open: false,
+                quant: null,
+                inputStr: "",
+            },
         });
 
         this._searchDebounce = null;
@@ -333,7 +338,81 @@ class MobilePhysicalInventory extends Component {
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
-}
+    // ---- Numpad ----
 
-// Register as client action
-registry.category("actions").add("mobile_physical_inventory", MobilePhysicalInventory);
+    openNumpad(quant) {
+        this.state.numpad.quant = quant;
+        this.state.numpad.inputStr = quant.inventory_quantity !== null
+            ? String(parseFloat(quant.inventory_quantity).toFixed(2)).replace(/\.?0+$/, '')
+            : "";
+        this.state.numpad.open = true;
+    }
+
+    closeNumpad() {
+        this.state.numpad.open = false;
+        this.state.numpad.quant = null;
+        this.state.numpad.inputStr = "";
+    }
+
+    numpadKey(char) {
+        if (char === '.' && this.state.numpad.inputStr.includes('.')) return;
+        if (this.state.numpad.inputStr.length >= 8) return;
+        if (char === '.' && !this.state.numpad.inputStr) this.state.numpad.inputStr = '0';
+        if (char !== '.' && this.state.numpad.inputStr === '0') this.state.numpad.inputStr = '';
+        this.state.numpad.inputStr += char;
+    }
+
+    numpadDelete() {
+        this.state.numpad.inputStr = this.state.numpad.inputStr.slice(0, -1);
+    }
+
+    numpadClear() {
+        this.state.numpad.inputStr = "";
+    }
+
+    numpadSetValue(val) {
+        this.state.numpad.inputStr = val;
+    }
+
+    numpadSetMatch() {
+        const qty = this.state.numpad.quant.quantity;
+        this.state.numpad.inputStr = String(parseFloat(qty || 0).toFixed(2)).replace(/\.?0+$/, '') || "0";
+    }
+
+    numpadSkip() {
+        this.showToast("Skipped — " + (this.state.numpad.quant?.product_name || ""), "");
+        this.closeNumpad();
+    }
+
+    async numpadConfirm() {
+        if (!this.state.numpad.inputStr) return;
+        const qty = parseFloat(this.state.numpad.inputStr);
+        const quant = this.state.numpad.quant;
+        await this.saveQty(quant, qty);
+        const diff = qty - (quant.quantity || 0);
+        const msg = Math.abs(diff) < 0.005
+            ? quant.product_name + " — ✓ Match"
+            : quant.product_name + " — " + (diff > 0 ? "+" : "") + diff.toFixed(2) + " difference";
+        this.showToast(msg, Math.abs(diff) < 0.005 ? "success" : "warning");
+        this.closeNumpad();
+    }
+
+    get numpadDiff() {
+        if (!this.state.numpad.inputStr || !this.state.numpad.quant) return null;
+        return parseFloat(this.state.numpad.inputStr) - (this.state.numpad.quant.quantity || 0);
+    }
+
+    get numpadDiffFormatted() {
+        if (this.numpadDiff === null) return "—";
+        if (Math.abs(this.numpadDiff) < 0.005) return "±0";
+        return this.numpadDiff > 0 ? "+" + this.numpadDiff.toFixed(2) : this.numpadDiff.toFixed(2);
+    }
+
+    get numpadDiffClass() {
+        if (this.numpadDiff === null) return "none";
+        if (Math.abs(this.numpadDiff) < 0.005) return "zero";
+        return this.numpadDiff > 0 ? "pos" : "neg";
+    }
+
+
+}

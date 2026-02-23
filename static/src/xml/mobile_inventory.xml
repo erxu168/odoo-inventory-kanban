@@ -132,6 +132,11 @@
             <t t-call="mobile_physical_inventory.AddModal"/>
         </t>
 
+        <!-- Numpad Drawer -->
+        <t t-if="state.numpad.open">
+            <t t-call="mobile_physical_inventory.NumpadDrawer"/>
+        </t>
+
     </div>
 </t>
 
@@ -189,21 +194,22 @@
             </div>
         </div>
 
-        <!-- Input Controls -->
-        <div class="mpi-input-row">
-            <button class="mpi-qty-btn minus" t-on-click="() => this.adjustQty(quant, -1)">−</button>
-            <input
-                type="number"
-                class="mpi-qty-input"
-                t-att-value="quant.inventory_quantity"
-                t-att-data-quant-id="quant.id"
-                t-on-change="(ev) => this.onQtyChange(quant, ev)"
-                t-on-focus="selectAll"
-                inputmode="decimal"
-                min="0"
-                step="1"
-            />
-            <button class="mpi-qty-btn plus" t-on-click="() => this.adjustQty(quant, 1)">+</button>
+        <!-- Tap to count field -->
+        <div
+            t-attf-class="mpi-tap-count #{quant.inventory_quantity !== null ? 'has-value' : ''}"
+            t-on-click="() => this.openNumpad(quant)"
+        >
+            <t t-if="quant.inventory_quantity !== null">
+                <span class="mpi-tap-value">
+                    <t t-esc="formatQty(quant.inventory_quantity)"/>
+                    <span class="mpi-tap-uom"> <t t-esc="quant.product_uom"/></span>
+                </span>
+                <i class="fa fa-pencil mpi-tap-edit"/>
+            </t>
+            <t t-else="">
+                <span class="mpi-tap-placeholder">Tap to count…</span>
+                <i class="fa fa-keyboard-o mpi-tap-icon"/>
+            </t>
         </div>
 
         <!-- Diff Badge -->
@@ -288,5 +294,100 @@
         </div>
     </div>
 </t>
+
+
+<!-- ============================================================
+     Numpad Drawer
+     ============================================================ -->
+<t t-name="mobile_physical_inventory.NumpadDrawer">
+    <!-- Backdrop -->
+    <div class="mpi-np-backdrop" t-on-click="closeNumpad"/>
+
+    <!-- Drawer -->
+    <div class="mpi-np-drawer">
+        <div class="mpi-np-handle"><div class="mpi-np-bar"/></div>
+
+        <!-- Product header -->
+        <div class="mpi-np-product">
+            <div class="mpi-np-product-info">
+                <t t-if="state.numpad.quant.product_category">
+                    <div class="mpi-np-cat"><t t-esc="state.numpad.quant.product_category"/></div>
+                </t>
+                <div class="mpi-np-name"><t t-esc="state.numpad.quant.product_name"/></div>
+                <div class="mpi-np-loc">
+                    <i class="fa fa-map-marker"/> <t t-esc="state.numpad.quant.location_name"/>
+                </div>
+            </div>
+            <button class="mpi-np-close" t-on-click="closeNumpad"><i class="fa fa-times"/></button>
+        </div>
+
+        <!-- Display -->
+        <div class="mpi-np-display">
+            <div class="mpi-np-display-main">
+                <div class="mpi-np-display-label">Counted qty</div>
+                <div t-attf-class="mpi-np-display-value #{!state.numpad.inputStr ? 'empty' : ''}">
+                    <t t-if="state.numpad.inputStr">
+                        <t t-esc="state.numpad.inputStr"/>
+                        <span class="mpi-np-uom"> <t t-esc="state.numpad.quant.product_uom"/></span>
+                    </t>
+                    <t t-else="">Enter count</t>
+                    <span class="mpi-np-cursor"/>
+                </div>
+            </div>
+            <div class="mpi-np-display-side">
+                <div class="mpi-np-expected">
+                    <div class="mpi-np-exp-label">Expected</div>
+                    <div class="mpi-np-exp-val">
+                        <t t-esc="formatQty(state.numpad.quant.quantity)"/>
+                        <span> <t t-esc="state.numpad.quant.product_uom"/></span>
+                    </div>
+                </div>
+                <div class="mpi-np-diff">
+                    <div class="mpi-np-diff-label">Diff</div>
+                    <div t-attf-class="mpi-np-diff-val #{numpadDiffClass}">
+                        <t t-esc="numpadDiffFormatted"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick sets -->
+        <div class="mpi-np-quicksets">
+            <button class="mpi-np-qs match" t-on-click="numpadSetMatch">
+                ✓ Match (<t t-esc="formatQty(state.numpad.quant.quantity)"/>)
+            </button>
+            <button class="mpi-np-qs" t-on-click="() => this.numpadSetValue('0')">0.00</button>
+            <button class="mpi-np-qs clear" t-on-click="numpadClear">Clear</button>
+        </div>
+
+        <!-- Numpad grid -->
+        <div class="mpi-np-grid">
+            <t t-foreach="['7','8','9','4','5','6','1','2','3']" t-as="k" t-key="k">
+                <button class="mpi-np-key" t-on-click="() => this.numpadKey(k)">
+                    <t t-esc="k"/>
+                </button>
+            </t>
+            <button class="mpi-np-key dot" t-on-click="() => this.numpadKey('.')">·</button>
+            <button class="mpi-np-key" t-on-click="() => this.numpadKey('0')">0</button>
+            <button class="mpi-np-key del" t-on-click="numpadDelete">
+                <i class="fa fa-long-arrow-left"/>
+            </button>
+        </div>
+
+        <!-- Actions -->
+        <div class="mpi-np-actions">
+            <button class="mpi-np-skip" t-on-click="numpadSkip">
+                <i class="fa fa-forward"/> Skip
+            </button>
+            <button
+                t-attf-class="mpi-np-confirm #{!state.numpad.inputStr ? 'disabled' : ''}"
+                t-on-click="numpadConfirm"
+            >
+                <i class="fa fa-check"/> Confirm Count
+            </button>
+        </div>
+    </div>
+</t>
+
 
 </templates>

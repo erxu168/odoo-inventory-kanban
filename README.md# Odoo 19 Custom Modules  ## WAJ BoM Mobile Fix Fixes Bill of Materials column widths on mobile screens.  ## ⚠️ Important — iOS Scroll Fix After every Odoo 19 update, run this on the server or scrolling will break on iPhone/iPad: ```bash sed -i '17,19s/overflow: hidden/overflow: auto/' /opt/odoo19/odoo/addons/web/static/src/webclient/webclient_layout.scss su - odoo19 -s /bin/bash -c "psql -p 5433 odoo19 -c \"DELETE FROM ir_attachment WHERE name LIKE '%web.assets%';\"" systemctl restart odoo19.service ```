@@ -1,1 +1,4 @@
-
+sed -i '12,14s/overflow: hidden/overflow: auto/' /opt/odoo19/odoo/addons/web/static/src/webclient/webclient_layout.scss
+sed -i '17,19s/overflow: hidden/overflow: auto/' /opt/odoo19/odoo/addons/web/static/src/webclient/webclient_layout.scss
+su - odoo19 -s /bin/bash -c "psql -p 5433 odoo19 -c \"DELETE FROM ir_attachment WHERE name LIKE '%web.assets%';\""
+systemctl restart odoo19.service

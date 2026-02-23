@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================
+         1. BoM LIST VIEW — make product name the star
+         ===================================================== -->
+    <record id="mrp_bom_tree_mobile" model="ir.ui.view">
+        <field name="name">mrp.bom.tree.mobile</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Hide Reference column by default (still accessible via column toggle) -->
+            <field name="code" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+
+            <!-- Hide BoM Type column by default -->
+            <field name="type" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+
+            <!-- Hide Company column by default -->
+            <field name="company_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+
+        </field>
+    </record>
+
+    <!-- =====================================================
+         2. BoM FORM VIEW — compact header + better component table
+         ===================================================== -->
+    <record id="mrp_bom_form_mobile" model="ir.ui.view">
+        <field name="name">mrp.bom.form.mobile</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Add a CSS class to the main form for targeted mobile styling -->
+            <form position="attributes">
+                <attribute name="class">waj-bom-form</attribute>
+            </form>
+
+        </field>
+    </record>
+
+    <!-- =====================================================
+         3. BoM COMPONENT LINE — slim down columns on mobile
+         ===================================================== -->
+    <record id="mrp_bom_line_tree_mobile" model="ir.ui.view">
+        <field name="name">mrp.bom.line.tree.mobile</field>
+        <field name="model">mrp.bom.line</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_line_tree_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Hide Unit column by default — toggleable if needed -->
+            <field name="product_uom_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>

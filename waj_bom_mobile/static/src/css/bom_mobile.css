@@ -1,0 +1,151 @@
+/* =============================================================
+   WAJ BoM Mobile Fix — bom_mobile.css
+   Targets screens under 768px (phones / narrow viewports)
+   ============================================================= */
+
+/* ---------------------------------------------------------------
+   LIST VIEW — give product name as much room as possible
+--------------------------------------------------------------- */
+@media (max-width: 768px) {
+
+    /* Make the product name column flex-grow */
+    .o_list_view .o_field_widget[name="product_tmpl_id"],
+    .o_list_view .o_field_widget[name="product_id"] {
+        min-width: 0;
+        flex: 1 1 auto !important;
+        white-space: normal !important;
+        word-break: break-word;
+    }
+
+    /* Show full text — no ellipsis on product names */
+    .o_list_view td[name="product_tmpl_id"] .o_field_widget,
+    .o_list_view td[name="product_id"] .o_field_widget {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+
+    /* Narrow the quantity column */
+    .o_list_view td[name="product_qty"],
+    .o_list_view th[data-name="product_qty"] {
+        width: 70px !important;
+        min-width: 70px !important;
+        max-width: 70px !important;
+        text-align: right;
+    }
+
+    /* Shrink the drag handle */
+    .o_list_view .o_handle_cell {
+        width: 20px !important;
+        min-width: 20px !important;
+        padding: 0 2px !important;
+    }
+
+    /* Shrink delete/action button column */
+    .o_list_view .o_list_record_remove {
+        width: 32px !important;
+        padding: 0 4px !important;
+    }
+}
+
+/* ---------------------------------------------------------------
+   FORM VIEW — compact header so components get more screen
+--------------------------------------------------------------- */
+@media (max-width: 768px) {
+
+    /* Stack the top header fields in a tighter grid */
+    .waj-bom-form .o_form_view .o_group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 8px;
+    }
+
+    /* Full-width for product field — it needs the most space */
+    .waj-bom-form .o_field_widget[name="product_tmpl_id"] {
+        grid-column: 1 / -1;
+    }
+
+    /* Reduce label font size slightly to save vertical space */
+    .waj-bom-form .o_form_label {
+        font-size: 11px;
+        color: #6c757d;
+        margin-bottom: 1px;
+    }
+
+    /* Tighten row padding in the form */
+    .waj-bom-form .o_wrap_field {
+        padding: 4px 0 !important;
+    }
+
+    /* BoM Type radio buttons: show inline to save vertical space */
+    .waj-bom-form .o_field_radio .o_radio_item {
+        display: inline-flex;
+        margin-right: 12px;
+    }
+
+    /* ----------------------------------------------------------
+       COMPONENT TAB — the main problem area
+       ---------------------------------------------------------- */
+
+    /* Component name: wrap text, full width */
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] td[name="product_id"] .o_field_widget,
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] td[name="product_id"] span {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-break: break-word;
+        line-height: 1.3;
+    }
+
+    /* Give component column maximum flex space */
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] td[name="product_id"],
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] th[data-name="product_id"] {
+        width: auto !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* Quantity column: fixed narrow width */
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] td[name="product_qty"],
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] th[data-name="product_qty"] {
+        width: 72px !important;
+        min-width: 72px !important;
+        text-align: right !important;
+    }
+
+    /* Slightly larger tap targets for the delete button */
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] .o_list_record_remove {
+        width: 36px !important;
+        min-width: 36px !important;
+    }
+
+    /* Slightly increase row height so wrapped names aren't cramped */
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] .o_data_row td {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        vertical-align: middle;
+    }
+
+    /* Tab bar: smaller font so all 3 tabs (Components/Operations/Misc) fit */
+    .waj-bom-form .o_notebook .nav-link {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+}
+
+/* ---------------------------------------------------------------
+   Extra small (iPhone SE and similar, < 400px)
+--------------------------------------------------------------- */
+@media (max-width: 400px) {
+
+    .waj-bom-form .o_notebook .nav-link {
+        font-size: 11px;
+        padding: 5px 5px;
+    }
+
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] td[name="product_qty"],
+    .waj-bom-form .o_field_one2many[name="bom_line_ids"] th[data-name="product_qty"] {
+        width: 60px !important;
+        min-width: 60px !important;
+    }
+}

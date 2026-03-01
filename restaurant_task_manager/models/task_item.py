@@ -4,8 +4,8 @@ from odoo.exceptions import ValidationError
 
 
 class TaskItem(models.Model):
-    """Individual task within a shift task list. Supports multiple
-    completion types, sub-task checklists, and proof-of-work."""
+    """Individual task within a shift task list.
+    Supports checkbox or photo completion, plus subtask checklists."""
     _name = 'restaurant.task.item'
     _description = 'Task Item'
     _order = 'sequence, deadline, id'
@@ -29,46 +29,22 @@ class TaskItem(models.Model):
     # ── Deadline ─────────────────────────────────────────────
     has_deadline = fields.Boolean(default=False)
     deadline = fields.Datetime(tracking=True)
-    is_overdue = fields.Boolean(compute='_compute_is_overdue', search='_search_is_overdue')
+    is_overdue = fields.Boolean(
+        compute='_compute_is_overdue', search='_search_is_overdue',
+    )
     time_remaining = fields.Char(compute='_compute_time_remaining')
 
-    # ── Completion Type ──────────────────────────────────────
+    # ── Completion ────────────────────────────────────────────
     completion_type = fields.Selection([
-        ('checkbox', 'Simple Checkbox'),
-        ('photo', 'Photo (Camera)'),
-        ('numeric', 'Numeric Value'),
-        ('text', 'Text Note'),
-        ('signature', 'Digital Signature'),
+        ('checkbox', 'Checkbox'),
+        ('photo', 'Photo Required'),
     ], default='checkbox', required=True)
-    numeric_label = fields.Char(string='Value Label')
-    numeric_min = fields.Float()
-    numeric_max = fields.Float()
-    require_proof_photo = fields.Boolean(string='Also Require Photo')
 
-    # ── Proof / Completion Data ──────────────────────────────
     proof_photo = fields.Binary(string='Proof Photo', attachment=True)
     proof_photo_filename = fields.Char()
-    proof_numeric_value = fields.Float(string='Recorded Value')
-    proof_text_note = fields.Text(string='Completion Note')
-    proof_signature = fields.Binary(string='Digital Signature')
-    staff_comment = fields.Text(
-        string='Staff Comment',
-        help='Staff can leave comments visible to managers.',
-    )
+    staff_comment = fields.Text(string='Staff Comment')
 
-    # ── Pre-deadline Reminder ─────────────────────────────────
-    reminder_minutes_before = fields.Integer(
-        string='Reminder (min before)',
-        default=0,
-        help='Minutes before deadline to send a reminder. 0 = no reminder.',
-    )
-    pre_reminder_sent = fields.Boolean(default=False)
-
-    # ── PDF Instructions ─────────────────────────────────────
-    instruction_file = fields.Binary(string='Instructions (PDF)', attachment=True)
-    instruction_filename = fields.Char()
-
-    # ── Sub-tasks ────────────────────────────────────────────
+    # ── Sub-tasks ─────────────────────────────────────────────
     subtask_ids = fields.One2many(
         'restaurant.task.subtask', 'task_item_id', string='Checklist',
     )
@@ -78,38 +54,23 @@ class TaskItem(models.Model):
         string='Checklist %', compute='_compute_subtask_progress',
     )
 
-    # ── Status ───────────────────────────────────────────────
+    # ── Status ────────────────────────────────────────────────
     state = fields.Selection([
         ('todo', 'To Do'),
         ('in_progress', 'In Progress'),
         ('done', 'Done'),
     ], default='todo', tracking=True)
     completed_at = fields.Datetime(readonly=True)
-    completed_on_time = fields.Boolean(compute='_compute_completed_on_time', store=True)
-    reminder_sent = fields.Boolean(default=False)
+    completed_on_time = fields.Boolean(
+        compute='_compute_completed_on_time', store=True,
+    )
 
     # ── Escalation Tracking ──────────────────────────────────
     escalation_level_1_sent = fields.Boolean(default=False)
     escalation_level_2_sent = fields.Boolean(default=False)
     escalation_level_3_sent = fields.Boolean(default=False)
 
-    # ── Handoff Tracking ─────────────────────────────────────
-    is_handoff = fields.Boolean(
-        string='Handed Off',
-        compute='_compute_is_handoff',
-        search='_search_is_handoff',
-    )
-
     # ── Computed Fields ──────────────────────────────────────
-
-    def _compute_is_handoff(self):
-        for rec in self:
-            rec.is_handoff = rec.name.startswith('[HANDOFF]') if rec.name else False
-
-    def _search_is_handoff(self, operator, value):
-        if (operator == '=' and value) or (operator == '!=' and not value):
-            return [('name', '=like', '[HANDOFF]%')]
-        return [('name', 'not like', '[HANDOFF]%')]
 
     @api.depends('subtask_ids.is_done')
     def _compute_subtask_progress(self):
@@ -127,10 +88,8 @@ class TaskItem(models.Model):
         now = fields.Datetime.now()
         for rec in self:
             rec.is_overdue = (
-                rec.has_deadline
-                and rec.state != 'done'
-                and rec.deadline
-                and rec.deadline < now
+                rec.has_deadline and rec.state != 'done'
+                and rec.deadline and rec.deadline < now
             )
 
     def _search_is_overdue(self, operator, value):
@@ -150,7 +109,7 @@ class TaskItem(models.Model):
             if rec.completed_at and rec.has_deadline and rec.deadline:
                 rec.completed_on_time = rec.completed_at <= rec.deadline
             elif rec.completed_at and not rec.has_deadline:
-                rec.completed_on_time = True  # No deadline = always on time
+                rec.completed_on_time = True
             else:
                 rec.completed_on_time = False
 
@@ -166,7 +125,7 @@ class TaskItem(models.Model):
                 diff = now - rec.deadline
                 h, rem = divmod(int(diff.total_seconds()), 3600)
                 m = rem // 60
-                rec.time_remaining = _('Overdue by %dh %02dm') % (h, m)
+                rec.time_remaining = _('Overdue %dh %02dm') % (h, m)
             else:
                 diff = rec.deadline - now
                 h, rem = divmod(int(diff.total_seconds()), 3600)
@@ -179,7 +138,6 @@ class TaskItem(models.Model):
         self.filtered(lambda r: r.state == 'todo').write({'state': 'in_progress'})
 
     def action_complete(self):
-        """Mark task as done with validation based on completion type."""
         now = fields.Datetime.now()
         for rec in self:
             rec._validate_completion()
@@ -195,48 +153,16 @@ class TaskItem(models.Model):
             'completed_at': False,
             'proof_photo': False,
             'proof_photo_filename': False,
-            'proof_numeric_value': 0,
-            'proof_text_note': False,
-            'proof_signature': False,
-            'reminder_sent': False,
-            'pre_reminder_sent': False,
         })
         self.subtask_ids.write({'is_done': False})
 
     def _validate_completion(self):
-        """Ensure required proof is provided based on completion type."""
+        """Ensure required proof is provided."""
         self.ensure_one()
         if self.completion_type == 'photo' and not self.proof_photo:
             raise ValidationError(_(
-                'Task "%s" requires a photo. Please upload a proof photo.', self.name
+                'Task "%s" requires a photo.', self.name
             ))
-        if self.completion_type == 'numeric':
-            # Validate value is within configured range.
-            # numeric_min defaults to 0.0 — always enforced (rejects negatives).
-            # numeric_max defaults to 0.0 — only enforced when explicitly set > 0.
-            if self.proof_numeric_value < self.numeric_min:
-                raise ValidationError(_(
-                    'Value %.1f is below minimum %.1f for task "%s".',
-                    self.proof_numeric_value, self.numeric_min, self.name,
-                ))
-            if self.numeric_max and self.proof_numeric_value > self.numeric_max:
-                raise ValidationError(_(
-                    'Value %.1f is above maximum %.1f for task "%s".',
-                    self.proof_numeric_value, self.numeric_max, self.name,
-                ))
-        if self.completion_type == 'text' and not self.proof_text_note:
-            raise ValidationError(_(
-                'Task "%s" requires a text note.', self.name
-            ))
-        if self.completion_type == 'signature' and not self.proof_signature:
-            raise ValidationError(_(
-                'Task "%s" requires a digital signature.', self.name
-            ))
-        if self.require_proof_photo and not self.proof_photo:
-            raise ValidationError(_(
-                'Task "%s" also requires a photo.', self.name
-            ))
-        # Validate all sub-tasks are checked
         if self.subtask_ids and not all(s.is_done for s in self.subtask_ids):
             raise ValidationError(_(
                 'All checklist items must be completed for task "%s".', self.name

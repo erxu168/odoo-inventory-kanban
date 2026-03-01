@@ -1,31 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="view_attendance_tree_inherit" model="ir.ui.view">
-        <field name="name">hr.attendance.list.inherit.task</field>
+    <!-- Inherit hr.attendance form to show task completion -->
+    <record id="view_attendance_form_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.form.inherit.tasks</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group string="Task Completion" invisible="task_completion_score == 0">
+                    <field name="task_completion_score" widget="progressbar"/>
+                    <field name="checkout_blocked"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit hr.attendance list to show task completion -->
+    <record id="view_attendance_list_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.list.inherit.tasks</field>
         <field name="model">hr.attendance</field>
         <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
                 <field name="task_completion_score" widget="progressbar"
-                       string="Tasks %" optional="show"/>
-                <field name="task_summary" optional="hide"/>
+                       optional="hide"/>
             </xpath>
         </field>
     </record>
 
-    <record id="view_attendance_form_inherit" model="ir.ui.view">
-        <field name="name">hr.attendance.form.inherit.task</field>
-        <field name="model">hr.attendance</field>
-        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+    <!-- Inherit hr.employee form to show task stats -->
+    <record id="view_employee_form_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.tasks</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet" position="inside">
-                <group string="Task Completion"
-                       groups="restaurant_task_manager.group_task_staff">
-                    <field name="task_completion_score" widget="progressbar"/>
-                    <field name="task_summary"/>
-                    <field name="task_list_ids" widget="many2many_tags" readonly="1"/>
-                </group>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_task_list_all)d" type="action"
+                        class="oe_stat_button" icon="fa-tasks"
+                        context="{'search_default_grp_employee': 1}">
+                    <field name="avg_task_completion" widget="statinfo"
+                           string="Avg Completion"/>
+                </button>
             </xpath>
         </field>
     </record>

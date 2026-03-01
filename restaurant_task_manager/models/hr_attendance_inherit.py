@@ -1,109 +1,60 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-from datetime import timedelta
-import logging
-
-_logger = logging.getLogger(__name__)
+from odoo.exceptions import ValidationError
 
 
 class HrAttendance(models.Model):
     _inherit = 'hr.attendance'
 
     task_completion_score = fields.Float(
-        string='Task Completion %',
-        compute='_compute_task_completion',
-        store=True,
+        compute='_compute_task_completion', string='Task Completion %',
     )
     task_list_ids = fields.Many2many(
-        'restaurant.task.list',
+        'restaurant.task.list', string='Task Lists',
         compute='_compute_task_completion',
-        store=True,
     )
-    task_summary = fields.Char(compute='_compute_task_summary')
-    checkout_blocked = fields.Boolean(
-        compute='_compute_checkout_blocked',
-        help='True if any task list with block policy has incomplete tasks.',
-    )
+    checkout_blocked = fields.Boolean(compute='_compute_checkout_blocked')
 
     @api.depends('employee_id', 'check_in', 'check_out')
     def _compute_task_completion(self):
         TaskList = self.env['restaurant.task.list']
         for att in self:
-            if not att.check_in or not att.employee_id:
-                att.task_completion_score = 0.0
+            if not att.employee_id or not att.check_in:
+                att.task_completion_score = 0
                 att.task_list_ids = False
                 continue
-            check_out = att.check_out or fields.Datetime.now()
-            buffer = timedelta(minutes=30)
-            lists = TaskList.search([
+            domain = [
                 ('employee_id', '=', att.employee_id.id),
-                ('shift_start', '<=', check_out + buffer),
-                ('shift_end', '>=', att.check_in - buffer),
-            ])
+                ('shift_start', '>=', att.check_in),
+            ]
+            if att.check_out:
+                domain.append(('shift_start', '<=', att.check_out))
+            lists = TaskList.search(domain)
             att.task_list_ids = lists
-            att.task_completion_score = (
-                sum(tl.completion_score for tl in lists) / len(lists)
-                if lists else 0.0
-            )
-
-    @api.depends('task_completion_score', 'task_list_ids')
-    def _compute_task_summary(self):
-        for att in self:
-            if att.task_list_ids:
-                att.task_summary = _('%.0f%% tasks completed') % att.task_completion_score
+            if lists:
+                att.task_completion_score = sum(
+                    l.completion_score for l in lists
+                ) / len(lists)
             else:
-                att.task_summary = _('No tasks assigned')
+                att.task_completion_score = 0
 
-    @api.depends('task_list_ids.completion_score', 'task_list_ids.checkout_policy')
+    @api.depends('task_list_ids', 'task_list_ids.completion_score',
+                 'task_list_ids.checkout_policy')
     def _compute_checkout_blocked(self):
         for att in self:
-            blocked_lists = att.task_list_ids.filtered(
-                lambda tl: tl.checkout_policy == 'block' and tl.completion_score < 100
+            att.checkout_blocked = any(
+                tl.checkout_policy == 'block' and tl.completion_score < 100
+                for tl in att.task_list_ids
             )
-            att.checkout_blocked = bool(blocked_lists)
 
     @api.constrains('check_out')
     def _check_task_completion_on_checkout(self):
-        """Enforce task completion policy when clocking out."""
         for att in self:
-            if not att.check_out or not att.employee_id:
-                continue
-            buffer = timedelta(minutes=30)
-            task_lists = self.env['restaurant.task.list'].search([
-                ('employee_id', '=', att.employee_id.id),
-                ('shift_start', '<=', att.check_out + buffer),
-                ('shift_end', '>=', att.check_in - buffer),
-                ('state', '=', 'active'),
-            ])
-            # Hard-block checkout for lists with 'block' policy
-            blocked = task_lists.filtered(
-                lambda tl: tl.checkout_policy == 'block' and tl.completion_score < 100
-            )
-            if blocked:
-                incomplete_names = []
-                for tl in blocked:
-                    pending = tl.task_item_ids.filtered(lambda i: i.state != 'done')
-                    incomplete_names.extend(pending.mapped('name'))
-                raise UserError(_(
-                    'Cannot clock out — the following mandatory tasks are incomplete:\n\n'
-                    '• %s\n\n'
-                    'Please complete all required tasks before checking out.'
-                ) % '\n• '.join(incomplete_names[:10]))
-
-            # Warn for lists with 'warn' policy (log message, allow checkout)
-            warned = task_lists.filtered(
-                lambda tl: tl.checkout_policy == 'warn' and tl.completion_score < 100
-            )
-            if warned:
-                for tl in warned:
-                    pending = tl.task_item_ids.filtered(lambda i: i.state != 'done')
-                    _logger.warning(
-                        'Employee %s clocked out with %d incomplete tasks (warn policy): %s',
-                        att.employee_id.name,
-                        len(pending),
-                        ', '.join(pending.mapped('name')[:5]),
-                    )
+            if att.check_out and att.checkout_blocked:
+                raise ValidationError(_(
+                    'Cannot check out: incomplete tasks with "Block Checkout" policy. '
+                    'Complete all required tasks first.'
+                ))
 
 
 class HrEmployee(models.Model):
@@ -113,77 +64,18 @@ class HrEmployee(models.Model):
         'restaurant.task.list', 'employee_id', string='Task Lists',
     )
     avg_task_completion = fields.Float(
-        string='Avg Completion %',
-        compute='_compute_avg_task_completion',
-    )
-    total_task_lists = fields.Integer(compute='_compute_avg_task_completion')
-    team_avg_task_completion = fields.Float(
-        string='Team Average %',
-        compute='_compute_team_avg',
-        help='Anonymous team average for comparison.',
+        compute='_compute_avg_task_completion', string='Avg Completion %',
     )
 
-    @api.depends('task_list_ids.completion_score', 'task_list_ids.state')
+    @api.depends('task_list_ids.completion_score')
     def _compute_avg_task_completion(self):
         for emp in self:
-            lists = emp.task_list_ids.filtered(
-                lambda l: l.state in ('active', 'done', 'expired')
+            done_lists = emp.task_list_ids.filtered(
+                lambda l: l.state in ('done', 'expired')
             )
-            emp.total_task_lists = len(lists)
-            emp.avg_task_completion = (
-                sum(l.completion_score for l in lists) / len(lists)
-                if lists else 0.0
-            )
-
-    def _compute_team_avg(self):
-        """Compute anonymous team average across all employees at same location."""
-        for emp in self:
-            location = emp.work_location_id
-            if location:
-                all_lists = self.env['restaurant.task.list'].search([
-                    ('location_id', '=', location.id),
-                    ('state', 'in', ('active', 'done', 'expired')),
-                ])
+            if done_lists:
+                emp.avg_task_completion = sum(
+                    l.completion_score for l in done_lists
+                ) / len(done_lists)
             else:
-                all_lists = self.env['restaurant.task.list'].search([
-                    ('state', 'in', ('active', 'done', 'expired')),
-                ])
-            emp.team_avg_task_completion = (
-                sum(l.completion_score for l in all_lists) / len(all_lists)
-                if all_lists else 0.0
-            )
-
-
-class HrEmployeePublic(models.Model):
-    """Extend public employee model so staff can see their own score + team avg."""
-    _inherit = 'hr.employee.public'
-
-    avg_task_completion = fields.Float(
-        string='Avg Completion %',
-        compute='_compute_avg_task_completion',
-    )
-    team_avg_task_completion = fields.Float(
-        string='Team Average %',
-        compute='_compute_team_avg',
-    )
-
-    def _compute_avg_task_completion(self):
-        for emp in self:
-            lists = self.env['restaurant.task.list'].search([
-                ('employee_id', '=', emp.id),
-                ('state', 'in', ('active', 'done', 'expired')),
-            ])
-            emp.avg_task_completion = (
-                sum(l.completion_score for l in lists) / len(lists)
-                if lists else 0.0
-            )
-
-    def _compute_team_avg(self):
-        for emp in self:
-            all_lists = self.env['restaurant.task.list'].search([
-                ('state', 'in', ('active', 'done', 'expired')),
-            ])
-            emp.team_avg_task_completion = (
-                sum(l.completion_score for l in all_lists) / len(all_lists)
-                if all_lists else 0.0
-            )
+                emp.avg_task_completion = 0

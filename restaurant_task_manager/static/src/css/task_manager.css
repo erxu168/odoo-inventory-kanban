@@ -1,15 +1,58 @@
-/* Restaurant Task Manager — Phase 1 Styles */
+/* Restaurant Task Manager - Custom Styles */
 
-.o_list_view .o_data_row.text-danger td {
-    background-color: #fff5f5 !important;
+/* Overdue task highlight in list views */
+.o_list_view .o_data_row.text-danger {
+    font-weight: 500;
 }
 
-.o_field_widget.o_progressbar .o_progressbar_value {
-    font-weight: 600;
+/* Completion score progressbar styling */
+.o_field_progressbar .o_progressbar {
+    height: 20px;
+    border-radius: 4px;
 }
 
-.o_field_image.oe_avatar img {
-    max-height: 200px;
+/* Task item form - photo proof area */
+.o_field_image {
+    border: 2px dashed #dee2e6;
     border-radius: 8px;
-    border: 2px solid #dee2e6;
+    padding: 8px;
+}
+
+/* Kanban card styling */
+.o_kanban_view .o_kanban_record {
+    border-left: 3px solid transparent;
+}
+
+.o_kanban_view .o_kanban_record .badge {
+    font-size: 0.75em;
+}
+
+/* Signature widget styling on task list */
+.o_signature_widget {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+/* Status badge colors */
+.badge.text-bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.text-bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.text-bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Task checklist toggle */
+.o_boolean_toggle .form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Dashboard graph responsive */
+.o_graph_view {
+    min-height: 400px;
 }

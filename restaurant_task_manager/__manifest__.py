@@ -26,8 +26,11 @@
     'assets': {
         'web.assets_backend': [
             'restaurant_task_manager/static/src/css/task_manager.css',
+            'restaurant_task_manager/static/src/apps_home/apps_home.js',
+            'restaurant_task_manager/static/src/apps_home/apps_home.xml',
         ],
     },
+    'post_init_hook': '_set_apps_home_action',
     'installable': True,
     'application': True,
 }

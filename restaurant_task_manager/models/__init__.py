@@ -6,3 +6,4 @@ from . import task_subtask
 from . import escalation_rule
 from . import hr_attendance_inherit
 from . import planning_slot_inherit
+from . import res_users_inherit

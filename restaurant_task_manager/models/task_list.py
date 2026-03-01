@@ -62,7 +62,7 @@ class TaskList(models.Model):
         string='Completion %',
         compute='_compute_completion',
         store=True,
-        group_operator='avg',
+        aggregator='avg',
     )
     state = fields.Selection([
         ('draft', 'Draft'),

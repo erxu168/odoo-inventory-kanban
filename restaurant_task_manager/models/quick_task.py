@@ -42,7 +42,7 @@ class QuickTask(models.Model):
         ('cancelled', 'Cancelled'),
     ], default='assigned', tracking=True)
     completed_at = fields.Datetime(readonly=True)
-    is_overdue = fields.Boolean(compute='_compute_is_overdue')
+    is_overdue = fields.Boolean(compute='_compute_is_overdue', search='_search_is_overdue')
 
     @api.depends('deadline', 'state')
     def _compute_is_overdue(self):
@@ -51,6 +51,17 @@ class QuickTask(models.Model):
             rec.is_overdue = (
                 rec.deadline and rec.state == 'assigned' and rec.deadline < now
             )
+
+    def _search_is_overdue(self, operator, value):
+        now = fields.Datetime.now()
+        if (operator == '=' and value) or (operator == '!=' and not value):
+            return [
+                ('deadline', '<', now),
+                ('state', '=', 'assigned'),
+                ('deadline', '!=', False),
+            ]
+        return ['|', ('deadline', '=', False), '|',
+                ('state', '!=', 'assigned'), ('deadline', '>=', now)]
 
     def action_complete(self):
         now = fields.Datetime.now()

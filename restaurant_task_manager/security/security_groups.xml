@@ -7,26 +7,35 @@
             <field name="sequence">50</field>
         </record>
 
+        <record id="privilege_restaurant_tasks" model="res.groups.privilege">
+            <field name="name">Restaurant Tasks</field>
+            <field name="sequence">50</field>
+            <field name="category_id" ref="module_category_restaurant_tasks"/>
+        </record>
+
         <!-- Tier 1: Staff -->
         <record id="group_task_staff" model="res.groups">
             <field name="name">Staff</field>
+            <field name="sequence">10</field>
             <field name="comment">View and complete own assigned tasks</field>
-            <field name="category_id" ref="module_category_restaurant_tasks"/>
+            <field name="privilege_id" ref="privilege_restaurant_tasks"/>
         </record>
 
         <!-- Tier 2: Manager -->
         <record id="group_task_manager" model="res.groups">
             <field name="name">Manager</field>
+            <field name="sequence">20</field>
             <field name="comment">Manage tasks and templates for their location(s), access dashboard</field>
-            <field name="category_id" ref="module_category_restaurant_tasks"/>
+            <field name="privilege_id" ref="privilege_restaurant_tasks"/>
             <field name="implied_ids" eval="[(4, ref('group_task_staff'))]"/>
         </record>
 
         <!-- Tier 3: Owner / Admin -->
         <record id="group_task_admin" model="res.groups">
             <field name="name">Owner / Admin</field>
+            <field name="sequence">30</field>
             <field name="comment">Full access across all locations, system configuration</field>
-            <field name="category_id" ref="module_category_restaurant_tasks"/>
+            <field name="privilege_id" ref="privilege_restaurant_tasks"/>
             <field name="implied_ids" eval="[(4, ref('group_task_manager'))]"/>
         </record>
 

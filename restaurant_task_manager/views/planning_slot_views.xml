@@ -4,7 +4,7 @@
     <record id="view_planning_slot_form_inherit" model="ir.ui.view">
         <field name="name">planning.slot.form.inherit.task</field>
         <field name="model">planning.slot</field>
-        <field name="inherit_id" ref="planning.planning_slot_view_form"/>
+        <field name="inherit_id" ref="planning.planning_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
                 <group string="Task Management"

@@ -9,7 +9,7 @@
             <field name="code">model._cron_check_overdue_tasks()</field>
             <field name="interval_number">10</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 
@@ -20,7 +20,7 @@
             <field name="code">model._cron_send_warning_emails()</field>
             <field name="interval_number">15</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 
@@ -31,7 +31,7 @@
             <field name="code">model._cron_auto_generate_from_slots()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 
@@ -42,7 +42,7 @@
             <field name="code">model._cron_pre_deadline_reminders()</field>
             <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 
@@ -53,7 +53,7 @@
             <field name="code">model._cron_shift_handoff()</field>
             <field name="interval_number">10</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 
@@ -64,7 +64,7 @@
             <field name="code">model._cron_escalation()</field>
             <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
+
             <field name="active">True</field>
         </record>
 

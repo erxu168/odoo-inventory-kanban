@@ -56,7 +56,6 @@
             <pivot string="Task Detail Analysis">
                 <field name="employee_id" type="row"/>
                 <field name="state" type="col"/>
-                <field name="__count" string="Count" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -67,8 +66,7 @@
         <field name="name">Today's Overview</field>
         <field name="res_model">restaurant.task.list</field>
         <field name="view_mode">kanban,list,graph,pivot,form</field>
-        <field name="search_default_today">1</field>
-        <field name="context">{'search_default_grp_employee': 1}</field>
+        <field name="context">{'search_default_today': 1, 'search_default_grp_employee': 1}</field>
     </record>
 
     <record id="action_dashboard_by_employee" model="ir.actions.act_window">
@@ -89,8 +87,7 @@
         <field name="name">Weekly Trend</field>
         <field name="res_model">restaurant.task.list</field>
         <field name="view_mode">pivot,graph,list,form</field>
-        <field name="search_default_this_week">1</field>
-        <field name="context">{'search_default_grp_employee': 1, 'search_default_grp_date': 1}</field>
+        <field name="context">{'search_default_this_week': 1, 'search_default_grp_employee': 1, 'search_default_grp_date': 1}</field>
     </record>
 
     <record id="action_dashboard_monthly" model="ir.actions.act_window">

@@ -182,7 +182,7 @@
                 <filter name="handoff" string="Handed Off"
                         domain="[('is_handoff', '=', True)]"/>
                 <separator/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="grp_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
                     <filter name="grp_task_list" string="Task List" context="{'group_by': 'task_list_id'}"/>
                     <filter name="grp_type" string="Completion Type" context="{'group_by': 'completion_type'}"/>

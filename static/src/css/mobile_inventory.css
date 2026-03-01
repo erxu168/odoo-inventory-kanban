@@ -2,13 +2,13 @@
    Mobile Physical Inventory - Responsive CSS
    ============================================ */
 
-/* Force ALL Odoo ancestor containers to not clip scroll */
-.o_action_manager,
-.o_action_manager > *,
-.o_action,
-.o_view_controller,
-.o_client_action_container,
-.o_client_action_container > * {
+/* Force Odoo ancestor containers to not clip scroll — scoped to mobile inventory only */
+.o_action_manager:has(.o_mobile_inventory_app),
+.o_action_manager:has(.o_mobile_inventory_app) > *,
+.o_action:has(.o_mobile_inventory_app),
+.o_view_controller:has(.o_mobile_inventory_app),
+.o_client_action_container:has(.o_mobile_inventory_app),
+.o_client_action_container:has(.o_mobile_inventory_app) > * {
     overflow: visible !important;
     height: auto !important;
     min-height: 0 !important;

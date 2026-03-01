@@ -1,4 +1,3 @@
-cat > /opt/odoo19/krawing/waj_bom_mobile/static/src/css/bom_mobile.css << 'EOF'
 /* WAJ BoM Mobile Fix — column width fixes for mobile */
 @media (max-width: 768px) {
 
@@ -56,4 +55,3 @@ cat > /opt/odoo19/krawing/waj_bom_mobile/static/src/css/bom_mobile.css << 'EOF'
         padding: 6px 10px;
     }
 }
-EOF

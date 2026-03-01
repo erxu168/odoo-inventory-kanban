@@ -85,11 +85,19 @@ class MobileInventoryController(http.Controller):
 
     @http.route('/mobile_inventory/apply_all', type='json', auth='user')
     def apply_all(self, location_id=None):
-        """Apply all inventory adjustments."""
+        """Apply all inventory adjustments. Requires stock manager access."""
+        # Only stock managers should be able to apply inventory adjustments
+        if not request.env.user.has_group('stock.group_stock_manager'):
+            return {'success': False, 'error': 'Access denied. Only stock managers can apply inventory adjustments.'}
+
         domain = [('location_id.usage', '=', 'internal')]
         if location_id:
             domain.append(('location_id', '=', int(location_id)))
         quants = request.env['stock.quant'].search(domain)
+
+        if not quants:
+            return {'success': False, 'error': 'No inventory adjustments to apply.'}
+
         try:
             quants.action_apply_inventory()
             return {'success': True}

@@ -14,7 +14,7 @@ class InventoryCountStandalone(http.Controller):
         """Main entry point — renders the shell HTML that bootstraps the OWL app."""
         # Validate the user has stock access
         if not request.env.user.has_group('stock.group_stock_user'):
-            return request.redirect('/web#action=login')
+            return request.redirect('/web/login')
 
         return request.render(
             'inventory_count_standalone.standalone_index',
@@ -71,9 +71,20 @@ class InventoryCountStandalone(http.Controller):
 
     @http.route('/inventory-count/validate', type='json', auth='user')
     def validate_inventory(self):
-        """Validates (applies) the inventory adjustment."""
+        """Validates (applies) the inventory adjustment. Requires stock manager access."""
+        if not request.env.user.has_group('stock.group_stock_manager'):
+            return {'error': 'Access denied. Only stock managers can validate inventory.'}
+
         try:
-            request.env['stock.quant'].action_apply_inventory()
+            # Search for quants that have been counted, not an empty recordset
+            quants = request.env['stock.quant'].search([
+                ('location_id.usage', '=', 'internal'),
+                ('inventory_quantity_set', '=', True),
+            ])
+            if not quants:
+                return {'error': 'No inventory adjustments to apply.'}
+
+            quants.action_apply_inventory()
             return {'success': True}
         except Exception as e:
             return {'error': str(e)}

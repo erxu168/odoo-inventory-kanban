@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Component, useState, onMounted } from "@odoo/owl";
+import { Component, useState, onMounted, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 // ============================================================
@@ -62,6 +62,7 @@ class MobilePhysicalInventory extends Component {
             },
         });
 
+        this.rootRef = useRef("root");
         this._searchDebounce = null;
         this._productSearchDebounce = null;
 
@@ -75,7 +76,8 @@ class MobilePhysicalInventory extends Component {
     // ---- Scroll unlock: walk up the DOM and remove any overflow:hidden ----
     _unlockScroll() {
         // Walk up from our root element and fix every ancestor that clips scroll
-        let el = this.__owl__.bdom.el;
+        let el = this.rootRef.el;
+        if (!el) return;
         while (el && el !== document.body) {
             const style = window.getComputedStyle(el);
             const overflow = style.overflow + style.overflowY + style.overflowX;
@@ -413,6 +415,7 @@ class MobilePhysicalInventory extends Component {
         if (Math.abs(this.numpadDiff) < 0.005) return "zero";
         return this.numpadDiff > 0 ? "pos" : "neg";
     }
-
-
 }
+
+// Register as a client action so the ir.actions.client tag="mobile_physical_inventory" can find it
+registry.category("actions").add("mobile_physical_inventory", MobilePhysicalInventory);

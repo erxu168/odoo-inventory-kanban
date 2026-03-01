@@ -5,7 +5,7 @@
      Mobile Physical Inventory - Main App Template
      ============================================================ -->
 <t t-name="mobile_physical_inventory.App">
-    <div class="o_mobile_inventory_app">
+    <div class="o_mobile_inventory_app" t-ref="root">
 
         <!-- Header -->
         <div class="mpi-header">

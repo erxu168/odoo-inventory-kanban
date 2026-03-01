@@ -1,0 +1,15 @@
+/* Restaurant Task Manager — Phase 1 Styles */
+
+.o_list_view .o_data_row.text-danger td {
+    background-color: #fff5f5 !important;
+}
+
+.o_field_widget.o_progressbar .o_progressbar_value {
+    font-weight: 600;
+}
+
+.o_field_image.oe_avatar img {
+    max-height: 200px;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+}

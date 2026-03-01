@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══ ROOT MENU ═══ -->
+    <menuitem id="menu_restaurant_tasks_root"
+              name="Restaurant Tasks"
+              web_icon="restaurant_task_manager,static/description/icon.png"
+              sequence="45"/>
+
+    <!-- ═══ MY TASKS (Staff + above) ═══ -->
+    <menuitem id="menu_my_tasks"
+              name="My Tasks"
+              parent="menu_restaurant_tasks_root"
+              action="action_my_tasks"
+              sequence="10"
+              groups="restaurant_task_manager.group_task_staff"/>
+
+    <menuitem id="menu_my_quick_tasks"
+              name="My Quick Tasks"
+              parent="menu_restaurant_tasks_root"
+              action="action_my_quick_tasks"
+              sequence="12"
+              groups="restaurant_task_manager.group_task_staff"/>
+
+    <!-- ═══ TASK MANAGEMENT (Manager + above) ═══ -->
+    <menuitem id="menu_task_management"
+              name="Task Management"
+              parent="menu_restaurant_tasks_root"
+              sequence="20"
+              groups="restaurant_task_manager.group_task_manager"/>
+
+    <menuitem id="menu_task_lists_all"
+              name="All Task Lists"
+              parent="menu_task_management"
+              action="action_task_list_all"
+              sequence="10"/>
+
+    <menuitem id="menu_task_items_all"
+              name="All Tasks"
+              parent="menu_task_management"
+              action="action_task_item_all"
+              sequence="20"/>
+
+    <menuitem id="menu_quick_tasks"
+              name="Quick Tasks"
+              parent="menu_task_management"
+              action="action_quick_tasks_all"
+              sequence="25"/>
+
+    <menuitem id="menu_overdue_tasks"
+              name="Overdue Tasks"
+              parent="menu_task_management"
+              action="action_overdue_tasks"
+              sequence="30"/>
+
+    <menuitem id="menu_handoff_tasks"
+              name="Handed Off Tasks"
+              parent="menu_task_management"
+              action="action_handoff_tasks"
+              sequence="35"/>
+
+    <menuitem id="menu_tasks_comments"
+              name="Staff Comments"
+              parent="menu_task_management"
+              action="action_tasks_with_comments"
+              sequence="40"/>
+
+    <!-- ═══ DASHBOARD (Manager + above) ═══ -->
+    <menuitem id="menu_dashboard"
+              name="Dashboard"
+              parent="menu_restaurant_tasks_root"
+              sequence="30"
+              groups="restaurant_task_manager.group_task_manager"/>
+
+    <menuitem id="menu_dashboard_today"
+              name="Today's Overview"
+              parent="menu_dashboard"
+              action="action_dashboard_today"
+              sequence="10"/>
+
+    <menuitem id="menu_dashboard_employee"
+              name="By Employee"
+              parent="menu_dashboard"
+              action="action_dashboard_by_employee"
+              sequence="20"/>
+
+    <menuitem id="menu_dashboard_location"
+              name="By Location"
+              parent="menu_dashboard"
+              action="action_dashboard_by_location"
+              sequence="30"/>
+
+    <menuitem id="menu_dashboard_weekly"
+              name="Weekly Trend"
+              parent="menu_dashboard"
+              action="action_dashboard_weekly"
+              sequence="40"/>
+
+    <menuitem id="menu_dashboard_monthly"
+              name="Monthly Trend"
+              parent="menu_dashboard"
+              action="action_dashboard_monthly"
+              sequence="50"/>
+
+    <menuitem id="menu_dashboard_cross_location"
+              name="Cross-Location"
+              parent="menu_dashboard"
+              action="action_dashboard_cross_location"
+              sequence="60"/>
+
+    <!-- ═══ CONFIGURATION (Admin only) ═══ -->
+    <menuitem id="menu_configuration"
+              name="Configuration"
+              parent="menu_restaurant_tasks_root"
+              sequence="90"
+              groups="restaurant_task_manager.group_task_admin"/>
+
+    <menuitem id="menu_task_templates"
+              name="Task Templates"
+              parent="menu_configuration"
+              action="action_task_list_template"
+              sequence="10"/>
+
+    <menuitem id="menu_escalation_rules"
+              name="Escalation Rules"
+              parent="menu_configuration"
+              action="action_escalation_rules"
+              sequence="20"/>
+
+</odoo>

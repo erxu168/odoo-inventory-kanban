@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_task_list_form" model="ir.ui.view">
+        <field name="name">restaurant.task.list.form</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_tasks" string="Generate Tasks"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="restaurant_task_manager.group_task_manager"/>
+                    <button name="action_mark_done" string="Mark Done"
+                            type="object" class="btn-success"
+                            invisible="state != 'active'"
+                            groups="restaurant_task_manager.group_task_manager"/>
+                    <button name="action_reset_draft" string="Reset"
+                            type="object" invisible="state == 'draft'"
+                            groups="restaurant_task_manager.group_task_admin"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Assignment">
+                            <field name="template_id"/>
+                            <field name="slot_id"/>
+                            <field name="employee_id" widget="many2one_avatar_employee"/>
+                            <field name="location_id"/>
+                        </group>
+                        <group string="Shift &amp; Scoring">
+                            <field name="shift_start"/>
+                            <field name="shift_end"/>
+                            <field name="checkout_policy"/>
+                            <field name="completion_score" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <group string="Employee Contact" col="4"
+                           groups="restaurant_task_manager.group_task_manager">
+                        <field name="employee_work_email" widget="email"/>
+                        <field name="employee_work_phone" widget="phone"/>
+                    </group>
+                    <notebook>
+                        <page string="Tasks" name="tasks">
+                            <field name="task_item_ids" nolabel="1">
+                                <list decoration-danger="is_overdue"
+                                      decoration-success="state == 'done'"
+                                      decoration-muted="state == 'todo'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="completion_type" optional="hide"/>
+                                    <field name="has_deadline" optional="hide"/>
+                                    <field name="deadline" optional="show"/>
+                                    <field name="time_remaining"/>
+                                    <field name="subtask_progress" widget="progressbar"
+                                           string="Checklist" optional="show"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'done'"
+                                           decoration-info="state == 'in_progress'"
+                                           decoration-muted="state == 'todo'"/>
+                                    <field name="proof_photo" widget="image"
+                                           options="{'size': [40, 40]}" optional="show"/>
+                                    <field name="is_overdue" column_invisible="1"/>
+                                    <button name="action_complete" string="✓ Done"
+                                            type="object" class="btn-success btn-sm"
+                                            invisible="state == 'done'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_task_list_tree" model="ir.ui.view">
+        <field name="name">restaurant.task.list.list</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'expired'"
+                  decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="location_id" optional="show"/>
+                <field name="shift_start"/>
+                <field name="shift_end"/>
+                <field name="completed_tasks"/>
+                <field name="total_tasks"/>
+                <field name="completion_score" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state == 'active'"
+                       decoration-warning="state == 'draft'"
+                       decoration-danger="state == 'expired'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_task_list_kanban" model="ir.ui.view">
+        <field name="name">restaurant.task.list.kanban</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="color"/>
+                <progressbar field="state"
+                             colors='{"draft": "muted", "active": "warning", "done": "success", "expired": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <field name="employee_id" widget="many2one_avatar_employee"/>
+                        <field name="name" class="fw-bold"/>
+                        <div class="mt-1"><field name="shift_start" widget="date"/></div>
+                        <div class="mt-2"><field name="completion_score" widget="progressbar"/></div>
+                        <div class="text-muted">
+                            <field name="completed_tasks"/>/<field name="total_tasks"/> tasks
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_task_list_search" model="ir.ui.view">
+        <field name="name">restaurant.task.list.search</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="template_id"/>
+                <field name="location_id"/>
+                <filter name="active_lists" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="completed" string="Completed" domain="[('state', '=', 'done')]"/>
+                <filter name="expired" string="Expired" domain="[('state', '=', 'expired')]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('shift_start', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('shift_start', '&lt;', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter name="this_week" string="This Week"
+                        domain="[('shift_start', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter name="low_completion" string="Low (&lt;50%)"
+                        domain="[('completion_score', '&lt;', 50), ('state', '!=', 'draft')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="grp_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="grp_template" string="Template" context="{'group_by': 'template_id'}"/>
+                    <filter name="grp_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="grp_date" string="Shift Date" context="{'group_by': 'shift_start:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_task_list_all" model="ir.actions.act_window">
+        <field name="name">All Task Lists</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_default_active_lists">1</field>
+    </record>
+
+    <record id="action_my_tasks" model="ir.actions.act_window">
+        <field name="name">My Tasks</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="search_default_active_lists">1</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No tasks assigned to you</p>
+        </field>
+    </record>
+
+</odoo>

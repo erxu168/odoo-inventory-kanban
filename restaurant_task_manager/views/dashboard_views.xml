@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══ DASHBOARD: Today's Overview ═══ -->
+
+    <record id="view_task_list_graph" model="ir.ui.view">
+        <field name="name">restaurant.task.list.graph</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Task Completion" type="bar">
+                <field name="employee_id"/>
+                <field name="completion_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_task_list_pivot" model="ir.ui.view">
+        <field name="name">restaurant.task.list.pivot</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <pivot string="Task Completion Analysis">
+                <field name="employee_id" type="row"/>
+                <field name="shift_start" interval="day" type="col"/>
+                <field name="completion_score" type="measure"/>
+                <field name="completed_tasks" type="measure"/>
+                <field name="total_tasks" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_task_list_graph_location" model="ir.ui.view">
+        <field name="name">restaurant.task.list.graph.location</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Completion by Location" type="bar">
+                <field name="location_id"/>
+                <field name="completion_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_task_item_graph" model="ir.ui.view">
+        <field name="name">restaurant.task.item.graph</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <graph string="Tasks by Status" type="pie">
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_task_item_pivot" model="ir.ui.view">
+        <field name="name">restaurant.task.item.pivot</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <pivot string="Task Detail Analysis">
+                <field name="employee_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="__count" string="Count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ═══ DASHBOARD ACTIONS ═══ -->
+
+    <record id="action_dashboard_today" model="ir.actions.act_window">
+        <field name="name">Today's Overview</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">kanban,list,graph,pivot,form</field>
+        <field name="search_default_today">1</field>
+        <field name="context">{'search_default_grp_employee': 1}</field>
+    </record>
+
+    <record id="action_dashboard_by_employee" model="ir.actions.act_window">
+        <field name="name">Completion by Employee</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="view_id" ref="view_task_list_graph"/>
+    </record>
+
+    <record id="action_dashboard_by_location" model="ir.actions.act_window">
+        <field name="name">Completion by Location</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="view_id" ref="view_task_list_graph_location"/>
+    </record>
+
+    <record id="action_dashboard_weekly" model="ir.actions.act_window">
+        <field name="name">Weekly Trend</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="search_default_this_week">1</field>
+        <field name="context">{'search_default_grp_employee': 1, 'search_default_grp_date': 1}</field>
+    </record>
+
+    <record id="action_dashboard_monthly" model="ir.actions.act_window">
+        <field name="name">Monthly Trend</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="context">{'search_default_grp_employee': 1}</field>
+    </record>
+
+    <!-- Monthly trend graph view -->
+    <record id="view_task_list_graph_monthly" model="ir.ui.view">
+        <field name="name">restaurant.task.list.graph.monthly</field>
+        <field name="model">restaurant.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Monthly Completion Trend" type="line">
+                <field name="shift_start" interval="week"/>
+                <field name="completion_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dashboard_cross_location" model="ir.actions.act_window">
+        <field name="name">Cross-Location Comparison</field>
+        <field name="res_model">restaurant.task.list</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="view_id" ref="view_task_list_graph_location"/>
+        <field name="context">{'search_default_grp_date': 1}</field>
+    </record>
+
+    <record id="action_overdue_tasks" model="ir.actions.act_window">
+        <field name="name">Overdue Tasks</field>
+        <field name="res_model">restaurant.task.item</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_overdue', '=', True)]</field>
+    </record>
+
+    <record id="action_handoff_tasks" model="ir.actions.act_window">
+        <field name="name">Handed Off Tasks</field>
+        <field name="res_model">restaurant.task.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_handoff', '=', True)]</field>
+    </record>
+
+    <record id="action_tasks_with_comments" model="ir.actions.act_window">
+        <field name="name">Tasks with Staff Comments</field>
+        <field name="res_model">restaurant.task.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('staff_comment', '!=', False)]</field>
+    </record>
+
+</odoo>

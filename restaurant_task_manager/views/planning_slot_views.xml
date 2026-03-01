@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_planning_slot_form_inherit" model="ir.ui.view">
+        <field name="name">planning.slot.form.inherit.task</field>
+        <field name="model">planning.slot</field>
+        <field name="inherit_id" ref="planning.planning_slot_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Task Management"
+                       groups="restaurant_task_manager.group_task_staff">
+                    <field name="task_list_count"/>
+                    <field name="task_completion_score" widget="progressbar"/>
+                    <button name="action_view_task_lists" string="View Task Lists"
+                            type="object" class="btn-link"
+                            invisible="task_list_count == 0"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

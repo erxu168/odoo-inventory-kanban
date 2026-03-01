@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══ WORK LOCATIONS ═══ -->
+
+        <record id="location_downtown" model="hr.work.location">
+            <field name="name">Downtown Branch</field>
+            <field name="address_id" ref="base.main_partner"/>
+        </record>
+
+        <record id="location_waterfront" model="hr.work.location">
+            <field name="name">Waterfront Branch</field>
+            <field name="address_id" ref="base.main_partner"/>
+        </record>
+
+        <!-- ═══ PLANNING ROLES ═══ -->
+
+        <record id="role_kitchen_opener" model="planning.role">
+            <field name="name">Kitchen Opener</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="role_kitchen_closer" model="planning.role">
+            <field name="name">Kitchen Closer</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="role_foh_opener" model="planning.role">
+            <field name="name">Front of House Opener</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="role_foh_closer" model="planning.role">
+            <field name="name">Front of House Closer</field>
+            <field name="color">4</field>
+        </record>
+
+        <record id="role_shift_manager" model="planning.role">
+            <field name="name">Shift Manager</field>
+            <field name="color">5</field>
+        </record>
+
+        <!-- ═══ TASK LIST TEMPLATES ═══ -->
+
+        <!-- 1. Kitchen Opening -->
+        <record id="template_kitchen_open" model="restaurant.task.list.template">
+            <field name="name">Kitchen Opening Tasks</field>
+            <field name="description">Daily kitchen preparation checklist for the opening crew.</field>
+            <field name="role_ids" eval="[(6, 0, [ref('role_kitchen_opener')])]"/>
+            <field name="checkout_policy">block</field>
+        </record>
+
+        <record id="task_tmpl_temp_walkin" model="restaurant.task.template">
+            <field name="name">Check Walk-In Temperature</field>
+            <field name="description"><![CDATA[<p>Record walk-in cooler temperature. Must be between 0°C and 4°C per HACCP guidelines.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_open"/>
+            <field name="sequence">10</field>
+            <field name="completion_type">numeric</field>
+            <field name="numeric_label">Temperature (°C)</field>
+            <field name="numeric_min">-2</field>
+            <field name="numeric_max">5</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">30</field>
+            <field name="reminder_minutes_before">10</field>
+        </record>
+
+        <record id="task_tmpl_temp_freezer" model="restaurant.task.template">
+            <field name="name">Check Freezer Temperature</field>
+            <field name="description"><![CDATA[<p>Record freezer temperature. Must be between -22°C and -16°C.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_open"/>
+            <field name="sequence">20</field>
+            <field name="completion_type">numeric</field>
+            <field name="numeric_label">Temperature (°C)</field>
+            <field name="numeric_min">-25</field>
+            <field name="numeric_max">-14</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">30</field>
+            <field name="reminder_minutes_before">10</field>
+        </record>
+
+        <record id="task_tmpl_prep_station" model="restaurant.task.template">
+            <field name="name">Set Up Prep Stations</field>
+            <field name="description"><![CDATA[<p>Prepare all workstations with mise en place for the day's service.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_open"/>
+            <field name="sequence">30</field>
+            <field name="completion_type">photo</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">90</field>
+            <field name="reminder_minutes_before">15</field>
+        </record>
+
+        <!-- Sub-tasks for prep stations -->
+        <record id="sub_prep_sauces" model="restaurant.subtask.template">
+            <field name="name">Prepare sauces and dressings</field>
+            <field name="task_template_id" ref="task_tmpl_prep_station"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_prep_proteins" model="restaurant.subtask.template">
+            <field name="name">Portion proteins for service</field>
+            <field name="task_template_id" ref="task_tmpl_prep_station"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="sub_prep_garnish" model="restaurant.subtask.template">
+            <field name="name">Wash and prep garnishes</field>
+            <field name="task_template_id" ref="task_tmpl_prep_station"/>
+            <field name="sequence">30</field>
+        </record>
+        <record id="sub_prep_labels" model="restaurant.subtask.template">
+            <field name="name">Label all containers with date and contents</field>
+            <field name="task_template_id" ref="task_tmpl_prep_station"/>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="task_tmpl_equipment_check" model="restaurant.task.template">
+            <field name="name">Equipment Safety Check</field>
+            <field name="description"><![CDATA[<p>Verify all kitchen equipment is functioning properly and safely.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_open"/>
+            <field name="sequence">40</field>
+            <field name="completion_type">checkbox</field>
+        </record>
+
+        <record id="sub_equip_ovens" model="restaurant.subtask.template">
+            <field name="name">Pre-heat ovens and verify temperature</field>
+            <field name="task_template_id" ref="task_tmpl_equipment_check"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_equip_fryers" model="restaurant.subtask.template">
+            <field name="name">Check fryer oil level and temperature</field>
+            <field name="task_template_id" ref="task_tmpl_equipment_check"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="sub_equip_grill" model="restaurant.subtask.template">
+            <field name="name">Clean and heat flat-top grill</field>
+            <field name="task_template_id" ref="task_tmpl_equipment_check"/>
+            <field name="sequence">30</field>
+        </record>
+        <record id="sub_equip_extinguisher" model="restaurant.subtask.template">
+            <field name="name">Verify fire extinguisher is accessible</field>
+            <field name="task_template_id" ref="task_tmpl_equipment_check"/>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- 2. Kitchen Closing -->
+        <record id="template_kitchen_close" model="restaurant.task.list.template">
+            <field name="name">Kitchen Closing Tasks</field>
+            <field name="description">End-of-day kitchen cleanup and safety checklist.</field>
+            <field name="role_ids" eval="[(6, 0, [ref('role_kitchen_closer')])]"/>
+            <field name="checkout_policy">block</field>
+        </record>
+
+        <record id="task_tmpl_deep_clean" model="restaurant.task.template">
+            <field name="name">Deep Clean Kitchen</field>
+            <field name="description"><![CDATA[<p>Full kitchen cleaning — all surfaces, equipment, and floors.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_close"/>
+            <field name="sequence">10</field>
+            <field name="completion_type">photo</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">180</field>
+        </record>
+
+        <record id="sub_clean_surfaces" model="restaurant.subtask.template">
+            <field name="name">Sanitize all prep surfaces</field>
+            <field name="task_template_id" ref="task_tmpl_deep_clean"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_clean_floors" model="restaurant.subtask.template">
+            <field name="name">Mop kitchen floors</field>
+            <field name="task_template_id" ref="task_tmpl_deep_clean"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="sub_clean_grease" model="restaurant.subtask.template">
+            <field name="name">Empty and clean grease traps</field>
+            <field name="task_template_id" ref="task_tmpl_deep_clean"/>
+            <field name="sequence">30</field>
+        </record>
+        <record id="sub_clean_drains" model="restaurant.subtask.template">
+            <field name="name">Clear floor drains</field>
+            <field name="task_template_id" ref="task_tmpl_deep_clean"/>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="task_tmpl_closing_temp" model="restaurant.task.template">
+            <field name="name">End-of-Day Temperature Log</field>
+            <field name="description"><![CDATA[<p>Record walk-in temperature at close. Sign off for the day.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_close"/>
+            <field name="sequence">20</field>
+            <field name="completion_type">numeric</field>
+            <field name="numeric_label">Walk-In Temperature (°C)</field>
+            <field name="numeric_min">-2</field>
+            <field name="numeric_max">5</field>
+            <field name="require_proof_photo">True</field>
+        </record>
+
+        <record id="task_tmpl_closing_signoff" model="restaurant.task.template">
+            <field name="name">Manager Sign-Off</field>
+            <field name="description"><![CDATA[<p>Shift lead confirms all closing tasks are complete.</p>]]></field>
+            <field name="task_list_template_id" ref="template_kitchen_close"/>
+            <field name="sequence">30</field>
+            <field name="completion_type">signature</field>
+        </record>
+
+        <!-- 3. FOH Opening -->
+        <record id="template_foh_open" model="restaurant.task.list.template">
+            <field name="name">Front of House Opening</field>
+            <field name="description">Dining area preparation for service.</field>
+            <field name="role_ids" eval="[(6, 0, [ref('role_foh_opener')])]"/>
+            <field name="checkout_policy">warn</field>
+        </record>
+
+        <record id="task_tmpl_dining_setup" model="restaurant.task.template">
+            <field name="name">Set Up Dining Area</field>
+            <field name="task_list_template_id" ref="template_foh_open"/>
+            <field name="sequence">10</field>
+            <field name="completion_type">checkbox</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">45</field>
+        </record>
+
+        <record id="sub_dining_tables" model="restaurant.subtask.template">
+            <field name="name">Set tables with cutlery, napkins, menus</field>
+            <field name="task_template_id" ref="task_tmpl_dining_setup"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_dining_candles" model="restaurant.subtask.template">
+            <field name="name">Light candles / set centrepieces</field>
+            <field name="task_template_id" ref="task_tmpl_dining_setup"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="sub_dining_music" model="restaurant.subtask.template">
+            <field name="name">Set background music and lighting</field>
+            <field name="task_template_id" ref="task_tmpl_dining_setup"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="task_tmpl_restroom_check" model="restaurant.task.template">
+            <field name="name">Restroom Inspection</field>
+            <field name="description"><![CDATA[<p>Check restrooms are clean and stocked before opening.</p>]]></field>
+            <field name="task_list_template_id" ref="template_foh_open"/>
+            <field name="sequence">20</field>
+            <field name="completion_type">photo</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">30</field>
+        </record>
+
+        <record id="sub_restroom_clean" model="restaurant.subtask.template">
+            <field name="name">Wipe mirrors and counters</field>
+            <field name="task_template_id" ref="task_tmpl_restroom_check"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_restroom_stock" model="restaurant.subtask.template">
+            <field name="name">Restock soap, paper towels, toilet paper</field>
+            <field name="task_template_id" ref="task_tmpl_restroom_check"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="task_tmpl_pos_check" model="restaurant.task.template">
+            <field name="name">POS System Check</field>
+            <field name="description"><![CDATA[<p>Verify POS terminals are online, printers working, daily specials entered.</p>]]></field>
+            <field name="task_list_template_id" ref="template_foh_open"/>
+            <field name="sequence">30</field>
+            <field name="completion_type">text</field>
+            <field name="has_deadline">True</field>
+            <field name="relative_deadline_minutes">20</field>
+        </record>
+
+        <!-- 4. FOH Closing -->
+        <record id="template_foh_close" model="restaurant.task.list.template">
+            <field name="name">Front of House Closing</field>
+            <field name="description">End-of-day dining area cleanup and cash-out.</field>
+            <field name="role_ids" eval="[(6, 0, [ref('role_foh_closer')])]"/>
+            <field name="checkout_policy">warn</field>
+        </record>
+
+        <record id="task_tmpl_cashout" model="restaurant.task.template">
+            <field name="name">Cash Out &amp; Tip Distribution</field>
+            <field name="task_list_template_id" ref="template_foh_close"/>
+            <field name="sequence">10</field>
+            <field name="completion_type">text</field>
+        </record>
+
+        <record id="task_tmpl_foh_clean" model="restaurant.task.template">
+            <field name="name">Clean Dining Area</field>
+            <field name="task_list_template_id" ref="template_foh_close"/>
+            <field name="sequence">20</field>
+            <field name="completion_type">photo</field>
+        </record>
+
+        <record id="sub_foh_tables" model="restaurant.subtask.template">
+            <field name="name">Clear, wipe, and reset all tables</field>
+            <field name="task_template_id" ref="task_tmpl_foh_clean"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="sub_foh_floors" model="restaurant.subtask.template">
+            <field name="name">Vacuum / mop dining floor</field>
+            <field name="task_template_id" ref="task_tmpl_foh_clean"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="sub_foh_bar" model="restaurant.subtask.template">
+            <field name="name">Clean and restock bar area</field>
+            <field name="task_template_id" ref="task_tmpl_foh_clean"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- ═══ ESCALATION RULES ═══ -->
+
+        <record id="escalation_level_1" model="restaurant.escalation.rule">
+            <field name="level">1</field>
+            <field name="delay_minutes">0</field>
+            <field name="recipient_type">employee</field>
+            <field name="send_email">True</field>
+            <field name="send_sms">False</field>
+        </record>
+
+        <record id="escalation_level_2" model="restaurant.escalation.rule">
+            <field name="level">2</field>
+            <field name="delay_minutes">15</field>
+            <field name="recipient_type">department_manager</field>
+            <field name="send_email">True</field>
+            <field name="send_sms">True</field>
+        </record>
+
+        <record id="escalation_level_3" model="restaurant.escalation.rule">
+            <field name="level">3</field>
+            <field name="delay_minutes">30</field>
+            <field name="recipient_type">parent_manager</field>
+            <field name="send_email">True</field>
+            <field name="send_sms">True</field>
+        </record>
+
+    </data>
+</odoo>

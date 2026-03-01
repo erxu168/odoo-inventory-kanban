@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_task_item_form" model="ir.ui.view">
+        <field name="name">restaurant.task.item.form</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start" string="Start" type="object"
+                            class="btn-primary" invisible="state != 'todo'"/>
+                    <button name="action_complete" string="Mark Complete" type="object"
+                            class="btn-success" invisible="state == 'done'"/>
+                    <button name="action_reset" string="Reset" type="object"
+                            invisible="state == 'todo'"
+                            groups="restaurant_task_manager.group_task_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="todo,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Details">
+                            <field name="task_list_id"/>
+                            <field name="employee_id" widget="many2one_avatar_employee"/>
+                            <field name="completion_type"/>
+                            <field name="has_deadline"/>
+                            <field name="deadline" invisible="not has_deadline"/>
+                            <field name="time_remaining"/>
+                        </group>
+                        <group string="Status">
+                            <field name="completed_at"/>
+                            <field name="completed_on_time"/>
+                            <field name="is_overdue" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Instructions Tab -->
+                        <page string="Instructions" name="instructions">
+                            <field name="description"/>
+                            <group>
+                                <field name="instruction_file" filename="instruction_filename"/>
+                                <field name="instruction_filename" invisible="1"/>
+                            </group>
+                        </page>
+
+                        <!-- Checklist Tab (sub-tasks) -->
+                        <page string="Checklist" name="checklist"
+                              invisible="not subtask_ids">
+                            <div class="mb-3">
+                                <strong>Progress: </strong>
+                                <field name="subtask_done_count" class="d-inline"/>
+                                / <field name="subtask_count" class="d-inline"/>
+                                (<field name="subtask_progress" class="d-inline" widget="float"/>%)
+                            </div>
+                            <field name="subtask_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="is_done" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Proof of Work Tab -->
+                        <page string="Proof of Work" name="proof">
+                            <!-- Photo proof -->
+                            <group string="Photo"
+                                   invisible="completion_type != 'photo' and not require_proof_photo">
+                                <field name="proof_photo" widget="image"
+                                       options="{'accepted_file_extensions': 'image/*'}"
+                                       class="oe_avatar"/>
+                                <field name="proof_photo_filename" invisible="1"/>
+                            </group>
+                            <!-- Numeric proof -->
+                            <group string="Value Entry"
+                                   invisible="completion_type != 'numeric'">
+                                <field name="numeric_label" readonly="1"/>
+                                <field name="proof_numeric_value"
+                                       string="Recorded Value"/>
+                                <field name="numeric_min" readonly="1" string="Min"/>
+                                <field name="numeric_max" readonly="1" string="Max"/>
+                            </group>
+                            <!-- Text proof -->
+                            <group string="Text Note"
+                                   invisible="completion_type != 'text'">
+                                <field name="proof_text_note"
+                                       placeholder="Describe what was done..."/>
+                            </group>
+                            <!-- Digital Signature proof -->
+                            <group string="Digital Signature"
+                                   invisible="completion_type != 'signature'">
+                                <field name="proof_signature" widget="signature"/>
+                            </group>
+                            <!-- Additional photo for non-photo types -->
+                            <group string="Additional Photo"
+                                   invisible="completion_type == 'photo' or not require_proof_photo">
+                                <field name="proof_photo" widget="image"
+                                       options="{'accepted_file_extensions': 'image/*'}"
+                                       class="oe_avatar"/>
+                            </group>
+                        </page>
+
+                        <!-- Staff Comment Tab -->
+                        <page string="Comment" name="comment">
+                            <field name="staff_comment"
+                                   placeholder="Leave a comment for your manager (e.g., equipment issues, supply shortages)..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_task_item_list" model="ir.ui.view">
+        <field name="name">restaurant.task.item.list</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_overdue" decoration-success="state == 'done'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="task_list_id"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="completion_type"/>
+                <field name="has_deadline" optional="hide"/>
+                <field name="deadline" optional="show"/>
+                <field name="time_remaining"/>
+                <field name="subtask_progress" widget="progressbar" string="Checklist" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state == 'in_progress'"
+                       decoration-muted="state == 'todo'"/>
+                <field name="completed_on_time" optional="show"/>
+                <field name="staff_comment" optional="hide"/>
+                <field name="is_overdue" column_invisible="1"/>
+                <button name="action_complete" string="✓" type="object"
+                        class="btn-success btn-sm" invisible="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_task_item_kanban" model="ir.ui.view">
+        <field name="name">restaurant.task.item.kanban</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold"/>
+                        <div class="text-muted mt-1">
+                            <field name="completion_type"/>
+                        </div>
+                        <div t-if="record.has_deadline.raw_value" class="mt-1">
+                            <field name="time_remaining"/>
+                        </div>
+                        <div t-if="record.subtask_count.raw_value" class="mt-1">
+                            <field name="subtask_progress" widget="progressbar"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_task_item_search" model="ir.ui.view">
+        <field name="name">restaurant.task.item.search</field>
+        <field name="model">restaurant.task.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="task_list_id"/>
+                <filter name="overdue" string="Overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter name="todo" string="To Do" domain="[('state', '=', 'todo')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter name="has_comment" string="Has Comment"
+                        domain="[('staff_comment', '!=', False)]"/>
+                <filter name="handoff" string="Handed Off"
+                        domain="[('is_handoff', '=', True)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="grp_task_list" string="Task List" context="{'group_by': 'task_list_id'}"/>
+                    <filter name="grp_type" string="Completion Type" context="{'group_by': 'completion_type'}"/>
+                    <filter name="grp_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_task_item_all" model="ir.actions.act_window">
+        <field name="name">All Tasks</field>
+        <field name="res_model">restaurant.task.item</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+</odoo>

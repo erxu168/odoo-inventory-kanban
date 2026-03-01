@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="mail_template_task_warning" model="mail.template">
+            <field name="name">Restaurant Task: Incomplete Tasks Warning</field>
+            <field name="model_id" ref="model_restaurant_task_list"/>
+            <field name="subject">⚠️ Incomplete Tasks — {{ object.name }}</field>
+            <field name="email_from">{{ (object.employee_id.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.employee_work_email }}</field>
+            <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #dc3545; color: #fff; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+        <h2 style="margin: 0;">⚠️ Incomplete Tasks Warning</h2>
+    </div>
+    <div style="background: #fff; padding: 24px; border: 1px solid #ddd;">
+        <p>Hello <strong>{{ object.employee_id.name }}</strong>,</p>
+        <p>Your shift has ended with incomplete tasks:</p>
+
+        <table width="100%" style="border-collapse: collapse; margin: 16px 0;">
+            <tr style="background: #f8f9fa;">
+                <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: left;">Task</th>
+                <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: center;">Type</th>
+                <th style="padding: 8px 12px; border: 1px solid #ddd; text-align: center;">Status</th>
+            </tr>
+            {% for item in object.task_item_ids %}
+            <tr>
+                <td style="padding: 8px 12px; border: 1px solid #ddd;">{{ item.name }}</td>
+                <td style="padding: 8px 12px; border: 1px solid #ddd; text-align: center;">{{ item.completion_type }}</td>
+                <td style="padding: 8px 12px; border: 1px solid #ddd; text-align: center;">
+                    {% if item.state == 'done' %}
+                    <span style="color: #28a745;">✓ Done</span>
+                    {% else %}
+                    <span style="color: #dc3545;">✗ Incomplete</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin: 16px 0;">
+            <strong>Score: {{ '%.0f' % object.completion_score }}%</strong>
+            — {{ object.completed_tasks }}/{{ object.total_tasks }} tasks completed
+        </div>
+
+        <p>Shift: {{ format_datetime(object.shift_start, dt_format='short') }} – {{ format_datetime(object.shift_end, dt_format='short') }}</p>
+        <p>Please speak with your manager if you had difficulties completing these tasks.</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 12px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none;">
+        <small style="color: #6c757d;">Automated message from Restaurant Task Manager</small>
+    </div>
+</div>
+            ]]></field>
+        </record>
+
+        <record id="mail_template_task_pre_reminder" model="mail.template">
+            <field name="name">Restaurant Task: Pre-Deadline Reminder</field>
+            <field name="model_id" ref="model_restaurant_task_item"/>
+            <field name="subject">⏰ Reminder: {{ object.name }} — due soon</field>
+            <field name="email_from">{{ (object.employee_id.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.task_list_id.employee_work_email }}</field>
+            <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #ffc107; color: #212529; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+        <h2 style="margin: 0;">⏰ Task Deadline Approaching</h2>
+    </div>
+    <div style="background: #fff; padding: 24px; border: 1px solid #ddd;">
+        <p>Hello <strong>{{ object.task_list_id.employee_id.name }}</strong>,</p>
+        <p>This is a reminder that your task is due soon:</p>
+        <div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 16px 0;">
+            <strong>{{ object.name }}</strong><br/>
+            <span>Due: {{ format_datetime(object.deadline, dt_format='short') }}</span><br/>
+            <span>Type: {{ object.completion_type }}</span>
+        </div>
+        <p>Please complete this task before the deadline.</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 12px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none;">
+        <small style="color: #6c757d;">Automated reminder from Restaurant Task Manager</small>
+    </div>
+</div>
+            ]]></field>
+        </record>
+
+        <record id="mail_template_escalation" model="mail.template">
+            <field name="name">Restaurant Task: Escalation Notification</field>
+            <field name="model_id" ref="model_restaurant_task_item"/>
+            <field name="subject">🔴 ESCALATION: {{ object.name }} — overdue task requires attention</field>
+            <field name="email_from">{{ (object.employee_id.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ ctx.get('escalation_recipient_email', '') }}</field>
+            <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #dc3545; color: #fff; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+        <h2 style="margin: 0;">🔴 Escalation — Overdue Task</h2>
+    </div>
+    <div style="background: #fff; padding: 24px; border: 1px solid #ddd;">
+        <p>Hello,</p>
+        <p>An overdue task requires your attention:</p>
+        <div style="background: #fff5f5; border-left: 4px solid #dc3545; padding: 12px 16px; margin: 16px 0;">
+            <strong>{{ object.name }}</strong><br/>
+            <span>Assigned to: {{ object.task_list_id.employee_id.name }}</span><br/>
+            <span>Was due: {{ format_datetime(object.deadline, dt_format='short') }}</span><br/>
+            <span>Escalation Level: {{ ctx.get('escalation_level', '?') }}</span>
+        </div>
+        <p>Please take appropriate action to ensure this task is completed or reassigned.</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 12px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none;">
+        <small style="color: #6c757d;">Automated escalation from Restaurant Task Manager</small>
+    </div>
+</div>
+            ]]></field>
+        </record>
+
+    </data>
+</odoo>

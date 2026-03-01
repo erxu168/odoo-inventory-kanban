@@ -38,10 +38,10 @@ class HrAttendance(models.Model):
             else:
                 att.task_completion_score = 0
 
-    @api.depends('task_list_ids', 'task_list_ids.completion_score',
-                 'task_list_ids.checkout_policy')
+    @api.depends('employee_id', 'check_in', 'check_out')
     def _compute_checkout_blocked(self):
         for att in self:
+            # Recompute from task lists matching this attendance window
             att.checkout_blocked = any(
                 tl.checkout_policy == 'block' and tl.completion_score < 100
                 for tl in att.task_list_ids

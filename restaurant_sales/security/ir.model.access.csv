@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sales_entry_staff,sales.entry.staff,model_restaurant_sales_entry,group_sales_staff,1,1,1,0
+access_sales_entry_manager,sales.entry.manager,model_restaurant_sales_entry,group_sales_manager,1,1,1,0
+access_sales_entry_admin,sales.entry.admin,model_restaurant_sales_entry,group_sales_admin,1,1,1,1
+access_sales_payment_staff,sales.payment.staff,model_restaurant_sales_payment_line,group_sales_staff,1,1,1,1
+access_sales_payment_manager,sales.payment.manager,model_restaurant_sales_payment_line,group_sales_manager,1,1,1,1
+access_sales_payment_admin,sales.payment.admin,model_restaurant_sales_payment_line,group_sales_admin,1,1,1,1
+access_sales_channel_line_staff,sales.channel.line.staff,model_restaurant_sales_channel_line,group_sales_staff,1,1,1,1
+access_sales_channel_line_manager,sales.channel.line.manager,model_restaurant_sales_channel_line,group_sales_manager,1,1,1,1
+access_sales_channel_line_admin,sales.channel.line.admin,model_restaurant_sales_channel_line,group_sales_admin,1,1,1,1
+access_sales_channel_staff,sales.channel.staff,model_restaurant_sales_channel,group_sales_staff,1,0,0,0
+access_sales_channel_manager,sales.channel.manager,model_restaurant_sales_channel,group_sales_manager,1,1,1,0
+access_sales_channel_admin,sales.channel.admin,model_restaurant_sales_channel,group_sales_admin,1,1,1,1
+access_pos_config_sales_staff,pos.config.sales.staff,point_of_sale.model_pos_config,group_sales_staff,1,0,0,0
+access_pos_session_sales_staff,pos.session.sales.staff,point_of_sale.model_pos_session,group_sales_staff,1,0,0,0
+access_pos_payment_method_sales_staff,pos.payment.method.sales.staff,point_of_sale.model_pos_payment_method,group_sales_staff,1,0,0,0
+access_pos_config_sales_admin,pos.config.sales.admin,point_of_sale.model_pos_config,group_sales_admin,1,1,0,0

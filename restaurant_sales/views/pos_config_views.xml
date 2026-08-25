@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Close-out settings live on their own pos.config views rather than in an
+        inherited Point of Sale form: the stock POS form is restructured
+        regularly between versions, and an xpath into it would turn a POS
+        upgrade into a failed install of this module.
+    -->
+
+    <record id="view_pos_config_list_sales" model="ir.ui.view">
+        <field name="name">pos.config.list.restaurant.sales</field>
+        <field name="model">pos.config</field>
+        <field name="arch" type="xml">
+            <list string="Outlets" create="false">
+                <field name="name"/>
+                <field name="sales_entry_required" widget="boolean_toggle"/>
+                <field name="sales_day_cutoff_hour" widget="float_time"/>
+                <field name="sales_cash_tolerance"/>
+                <field name="sales_tz" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"
+                       optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pos_config_form_sales" model="ir.ui.view">
+        <field name="name">pos.config.form.restaurant.sales</field>
+        <field name="model">pos.config</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <form string="Outlet Close-out">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Business Day">
+                            <field name="sales_entry_required"/>
+                            <field name="sales_tz"
+                                   invisible="not sales_entry_required"/>
+                            <field name="sales_day_cutoff_hour" widget="float_time"
+                                   invisible="not sales_entry_required"/>
+                        </group>
+                        <group string="Cash Control">
+                            <field name="sales_cash_tolerance"
+                                   invisible="not sales_entry_required"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Close-out Staff">
+                            <field name="sales_staff_ids" nolabel="1"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Approvers">
+                            <field name="sales_manager_ids" nolabel="1"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pos_config_sales" model="ir.actions.act_window">
+        <field name="name">Outlets</field>
+        <field name="res_model">pos.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No point of sale configured yet
+            </p>
+            <p>
+                Outlets come from Point of Sale. Set each one's business-day
+                cutoff, cash tolerance and approvers here.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ Form ══════════════════ -->
+    <record id="view_sales_entry_form" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.form</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <form class="o_restaurant_sales_form">
+                <header>
+                    <button name="action_sync_pos" string="Refresh from POS"
+                            type="object" icon="fa-refresh"
+                            invisible="state not in ('draft', 'rejected')"/>
+                    <button name="action_submit" string="Submit"
+                            type="object" class="btn-primary"
+                            invisible="state not in ('draft', 'rejected')"/>
+                    <button name="action_approve" string="Approve"
+                            type="object" class="btn-success"
+                            invisible="state != 'submitted'"
+                            groups="restaurant_sales.group_sales_manager"/>
+                    <button name="action_reject" string="Send Back"
+                            type="object"
+                            invisible="state != 'submitted'"
+                            groups="restaurant_sales.group_sales_manager"/>
+                    <button name="action_reset_draft" string="Reset to Draft"
+                            type="object"
+                            invisible="state == 'draft'"
+                            groups="restaurant_sales.group_sales_admin"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"
+                            invisible="state != 'approved'"/>
+                    <widget name="web_ribbon" title="Sent Back" bg_color="text-bg-danger"
+                            invisible="state != 'rejected'"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sessions" type="object"
+                                class="oe_stat_button" icon="fa-list-alt"
+                                invisible="session_count == 0">
+                            <field name="session_count" widget="statinfo"
+                                   string="POS Sessions"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group name="identification">
+                            <field name="pos_config_id"
+                                   readonly="state not in ('draft', 'rejected')"
+                                   options="{'no_create': True}"/>
+                            <field name="date"
+                                   readonly="state not in ('draft', 'rejected')"/>
+                            <field name="user_id" widget="many2one_avatar_user"
+                                   readonly="state == 'approved'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state not in ('draft', 'rejected')"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group name="totals">
+                            <field name="pos_sales_total"/>
+                            <field name="channel_gross_total"/>
+                            <field name="total_revenue" class="fw-bold fs-5"/>
+                            <field name="pos_synced_on"/>
+                        </group>
+                    </group>
+
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not over_tolerance">
+                        The cash variance is above this outlet's tolerance.
+                        Explain it below before submitting.
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="state != 'rejected'">
+                        This entry was sent back for correction — see the
+                        Approval tab for what needs fixing.
+                    </div>
+
+                    <notebook>
+                        <page string="Payments" name="payments">
+                            <field name="payment_line_ids"
+                                   readonly="state not in ('draft', 'rejected')">
+                                <list editable="bottom"
+                                      decoration-danger="difference &lt; 0"
+                                      decoration-success="difference &gt; 0">
+                                    <field name="payment_method_id"/>
+                                    <field name="is_cash" optional="hide"/>
+                                    <field name="pos_amount" readonly="1"
+                                           sum="Expected"/>
+                                    <field name="counted_amount" sum="Counted"/>
+                                    <field name="difference" readonly="1"
+                                           sum="Variance"/>
+                                    <field name="note" optional="show"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="pos_payment_total"/>
+                                <field name="counted_total"/>
+                                <field name="variance_total" class="fw-bold"/>
+                            </group>
+                            <group string="Cash Drawer" name="cash">
+                                <group>
+                                    <field name="pos_opening_float"/>
+                                    <field name="cash_expected"/>
+                                </group>
+                                <group>
+                                    <field name="cash_counted"/>
+                                    <field name="cash_difference" class="fw-bold"/>
+                                    <field name="over_tolerance" invisible="1"/>
+                                </group>
+                            </group>
+                            <group string="Variance Explanation"
+                                   invisible="not over_tolerance and not variance_note">
+                                <field name="variance_note" nolabel="1"
+                                       placeholder="What happened to the money? e.g. change fund taken for the float, mis-rung order refunded in cash…"
+                                       readonly="state not in ('draft', 'rejected')"
+                                       required="over_tolerance"/>
+                            </group>
+                        </page>
+
+                        <page string="Other Channels" name="channels">
+                            <field name="channel_line_ids"
+                                   readonly="state not in ('draft', 'rejected')">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="channel_id"/>
+                                    <field name="order_count"/>
+                                    <field name="gross_amount" sum="Gross"/>
+                                    <field name="commission_percent"/>
+                                    <field name="commission_amount" readonly="1"
+                                           sum="Commission"/>
+                                    <field name="net_amount" readonly="1" sum="Net"/>
+                                    <field name="note" optional="show"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="channel_gross_total"/>
+                                <field name="channel_net_total"/>
+                            </group>
+                        </page>
+
+                        <page string="POS Detail" name="pos_detail">
+                            <group>
+                                <group string="Volume">
+                                    <field name="pos_order_count"/>
+                                    <field name="pos_refund_count"/>
+                                    <field name="pos_average_ticket"/>
+                                    <field name="channel_order_count"/>
+                                </group>
+                                <group string="Amounts">
+                                    <field name="pos_untaxed_total"/>
+                                    <field name="pos_tax_total"/>
+                                    <field name="pos_refund_total"/>
+                                    <field name="pos_sales_total"/>
+                                </group>
+                            </group>
+                            <field name="session_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="start_at"/>
+                                    <field name="stop_at"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Notes" name="notes">
+                            <field name="note" nolabel="1"
+                                   placeholder="Anything the day's numbers do not explain by themselves…"/>
+                        </page>
+
+                        <page string="Approval" name="approval"
+                              invisible="state == 'draft'">
+                            <group>
+                                <field name="approved_by_id"
+                                       invisible="state != 'approved'"/>
+                                <field name="approved_on"
+                                       invisible="state != 'approved'"/>
+                                <field name="rejection_reason"
+                                       readonly="state != 'submitted'"
+                                       placeholder="Fill this in to send the entry back for correction."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════ List ══════════════════ -->
+    <record id="view_sales_entry_list" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.list</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="over_tolerance == True"
+                  decoration-muted="state == 'draft'"
+                  decoration-danger="state == 'rejected'">
+                <field name="date"/>
+                <field name="pos_config_id"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="pos_order_count" optional="hide"/>
+                <field name="pos_sales_total" sum="POS Net Sales"/>
+                <field name="channel_gross_total" sum="Channel Gross" optional="show"/>
+                <field name="total_revenue" sum="Total Revenue"/>
+                <field name="cash_difference" sum="Cash Variance"/>
+                <field name="over_tolerance" column_invisible="True"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Kanban (mobile close-out) ══════════════════ -->
+    <record id="view_sales_entry_kanban" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.kanban</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_restaurant_sales_kanban">
+                <field name="color"/>
+                <field name="over_tolerance"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong class="fs-5"><field name="pos_config_id"/></strong>
+                                <div class="text-muted"><field name="date"/></div>
+                            </div>
+                            <field name="state" widget="label_selection"
+                                   options="{'classes': {'draft': 'secondary', 'submitted': 'info', 'approved': 'success', 'rejected': 'danger'}}"/>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between">
+                            <span class="text-muted">Revenue</span>
+                            <strong><field name="total_revenue" widget="monetary"/></strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Cash variance</span>
+                            <strong t-att-class="record.over_tolerance.raw_value ? 'text-danger' : 'text-success'">
+                                <field name="cash_difference" widget="monetary"/>
+                            </strong>
+                        </div>
+                        <footer class="pt-2">
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Search ══════════════════ -->
+    <record id="view_sales_entry_search" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.search</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="pos_config_id"/>
+                <field name="date"/>
+                <field name="user_id"/>
+                <filter name="filter_draft" string="To Submit"
+                        domain="[('state', 'in', ('draft', 'rejected'))]"/>
+                <filter name="filter_submitted" string="Awaiting Approval"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_approved" string="Approved"
+                        domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter name="filter_variance" string="Above Tolerance"
+                        domain="[('over_tolerance', '=', True)]"/>
+                <filter name="filter_short" string="Cash Short"
+                        domain="[('cash_difference', '&lt;', 0)]"/>
+                <separator/>
+                <filter name="filter_mine" string="My Entries"
+                        domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_this_month" string="This Month" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_outlet" string="Outlet"
+                            context="{'group_by': 'pos_config_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_user" string="Closed By"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter name="group_date" string="Business Day"
+                            context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Reporting ══════════════════ -->
+    <record id="view_sales_entry_pivot" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.pivot</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <pivot string="Daily Sales" sample="1">
+                <field name="date" interval="day" type="row"/>
+                <field name="pos_config_id" type="col"/>
+                <field name="total_revenue" type="measure"/>
+                <field name="cash_difference" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_sales_entry_graph" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.graph</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <graph string="Revenue Trend" type="line" sample="1">
+                <field name="date" interval="day"/>
+                <field name="total_revenue" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Actions ══════════════════ -->
+    <record id="action_sales_entry" model="ir.actions.act_window">
+        <field name="name">Daily Sales</field>
+        <field name="res_model">restaurant.sales.entry</field>
+        <field name="view_mode">list,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_sales_entry_search"/>
+        <field name="context">{'search_default_filter_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No sales entry yet
+            </p>
+            <p>
+                An entry is opened automatically for every outlet once its
+                business day ends. Create one by hand to close out a day early.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_sales_entry_to_close" model="ir.actions.act_window">
+        <field name="name">To Close Out</field>
+        <field name="res_model">restaurant.sales.entry</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_sales_entry_search"/>
+        <field name="domain">[('state', 'in', ('draft', 'rejected'))]</field>
+    </record>
+
+    <record id="action_sales_entry_to_approve" model="ir.actions.act_window">
+        <field name="name">To Approve</field>
+        <field name="res_model">restaurant.sales.entry</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_sales_entry_search"/>
+        <field name="domain">[('state', '=', 'submitted')]</field>
+    </record>
+
+</odoo>

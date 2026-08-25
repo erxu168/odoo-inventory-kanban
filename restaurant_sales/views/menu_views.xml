@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_restaurant_sales_root"
+              name="Restaurant Sales"
+              web_icon="restaurant_sales,static/description/icon.png"
+              sequence="51"
+              groups="restaurant_sales.group_sales_staff"/>
+
+    <menuitem id="menu_sales_to_close"
+              name="To Close Out"
+              parent="menu_restaurant_sales_root"
+              action="action_sales_entry_to_close"
+              sequence="10"/>
+
+    <menuitem id="menu_sales_to_approve"
+              name="To Approve"
+              parent="menu_restaurant_sales_root"
+              action="action_sales_entry_to_approve"
+              sequence="20"
+              groups="group_sales_manager"/>
+
+    <menuitem id="menu_sales_entries"
+              name="All Days"
+              parent="menu_restaurant_sales_root"
+              action="action_sales_entry"
+              sequence="30"/>
+
+    <menuitem id="menu_sales_reporting"
+              name="Reporting"
+              parent="menu_restaurant_sales_root"
+              sequence="60"
+              groups="group_sales_manager"/>
+
+    <menuitem id="menu_sales_reporting_revenue"
+              name="Revenue Trend"
+              parent="menu_sales_reporting"
+              action="action_dashboard_revenue"
+              sequence="10"/>
+
+    <menuitem id="menu_sales_reporting_variance"
+              name="Cash Variances"
+              parent="menu_sales_reporting"
+              action="action_dashboard_variance"
+              sequence="20"/>
+
+    <menuitem id="menu_sales_reporting_channels"
+              name="Channel Mix"
+              parent="menu_sales_reporting"
+              action="action_sales_channel_line"
+              sequence="30"/>
+
+    <menuitem id="menu_sales_configuration"
+              name="Configuration"
+              parent="menu_restaurant_sales_root"
+              sequence="90"
+              groups="group_sales_manager"/>
+
+    <menuitem id="menu_sales_channels"
+              name="Sales Channels"
+              parent="menu_sales_configuration"
+              action="action_sales_channel"
+              sequence="10"/>
+
+    <menuitem id="menu_sales_outlets"
+              name="Outlets"
+              parent="menu_sales_configuration"
+              action="action_pos_config_sales"
+              sequence="20"
+              groups="group_sales_admin"/>
+
+</odoo>

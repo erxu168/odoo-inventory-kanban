@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Revenue by outlet over the last 30 days -->
+    <record id="view_sales_entry_graph_outlet" model="ir.ui.view">
+        <field name="name">restaurant.sales.entry.graph.outlet</field>
+        <field name="model">restaurant.sales.entry</field>
+        <field name="arch" type="xml">
+            <graph string="Revenue by Outlet" type="bar" sample="1">
+                <field name="date" interval="day" type="row"/>
+                <field name="pos_config_id" type="col"/>
+                <field name="total_revenue" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dashboard_revenue" model="ir.actions.act_window">
+        <field name="name">Revenue Trend</field>
+        <field name="res_model">restaurant.sales.entry</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="domain">[
+            ('date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))
+        ]</field>
+        <field name="context">{'graph_view_ref': 'restaurant_sales.view_sales_entry_graph_outlet'}</field>
+    </record>
+
+    <record id="action_dashboard_variance" model="ir.actions.act_window">
+        <field name="name">Cash Variances</field>
+        <field name="res_model">restaurant.sales.entry</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="search_view_id" ref="view_sales_entry_search"/>
+        <field name="domain">[('over_tolerance', '=', True)]</field>
+        <field name="context">{'search_default_group_outlet': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Every till balanced
+            </p>
+            <p>
+                Days whose cash variance exceeded the outlet's tolerance show
+                up here, with the explanation the closing staff gave.
+            </p>
+        </field>
+    </record>
+
+</odoo>

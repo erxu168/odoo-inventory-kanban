@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_staff_attribute_list" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.list</field>
+        <field name="model">restaurant.staff.attribute</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="value_type"/>
+                <field name="requirement_count" string="Used By"/>
+                <field name="value_count" string="Staff With It"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_staff_attribute_form" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.form</field>
+        <field name="model">restaurant.staff.attribute</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_requirements" type="object"
+                                class="oe_stat_button" icon="fa-list-ul">
+                            <field name="requirement_count" widget="statinfo"
+                                   string="Requirements"/>
+                        </button>
+                        <button name="action_view_values" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="value_count" widget="statinfo"
+                                   string="Staff Values"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Grill"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                         invisible="requirement_count != 0">
+                        No shift requirement uses this attribute yet, so it has
+                        no effect on planning. An attribute nothing references
+                        is just another field to keep up to date.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="grill"/>
+                            <field name="category"/>
+                            <field name="value_type"/>
+                            <field name="compute_method"/>
+                        </group>
+                        <group>
+                            <field name="scale_min" invisible="value_type != 'level'"/>
+                            <field name="scale_max" invisible="value_type != 'level'"/>
+                            <field name="scale_labels"
+                                   invisible="value_type != 'level'"
+                                   placeholder="none, learning, works solo, can train others"/>
+                            <field name="expiry_warning_days"
+                                   invisible="value_type != 'certification'"/>
+                            <field name="review_interval_months"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="What this means in practice, so two managers grade it the same way..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_staff_attribute_search" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.search</field>
+        <field name="model">restaurant.staff.attribute</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="unused" string="Not Used By Any Requirement"
+                        domain="[('requirement_ids', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Category"
+                            context="{'group_by': 'category'}"/>
+                    <filter name="group_type" string="Value Type"
+                            context="{'group_by': 'value_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_staff_attribute" model="ir.actions.act_window">
+        <field name="name">Staff Attributes</field>
+        <field name="res_model">restaurant.staff.attribute</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Define what staff can be, and shifts can need</p>
+            <p>A skill, a certificate, an authorisation or a trait. Shift
+            requirements are written against these, so adding a new planning
+            rule later never needs a developer.</p>
+        </field>
+    </record>
+
+</odoo>

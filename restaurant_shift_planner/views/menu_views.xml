@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_shift_planning_root"
+              name="Shift Planning"
+              sequence="51"
+              groups="group_shift_planner_user"/>
+
+    <menuitem id="menu_shift_planning_staff"
+              name="Staff"
+              parent="menu_shift_planning_root"
+              sequence="10"/>
+
+    <menuitem id="menu_attribute_values"
+              name="Attribute Values"
+              parent="menu_shift_planning_staff"
+              action="action_attribute_value"
+              sequence="10"/>
+
+    <menuitem id="menu_attribute_values_attention"
+              name="Expiring &amp; Overdue"
+              parent="menu_shift_planning_staff"
+              action="action_attribute_value_attention"
+              sequence="20"
+              groups="group_shift_planner_manager"/>
+
+    <menuitem id="menu_shift_planning_checks"
+              name="Checks"
+              parent="menu_shift_planning_root"
+              sequence="20"
+              groups="group_shift_planner_manager"/>
+
+    <menuitem id="menu_gap_report"
+              name="Coverage Gap Report"
+              parent="menu_shift_planning_checks"
+              action="action_shift_gap_report"
+              sequence="10"/>
+
+    <menuitem id="menu_shift_planning_config"
+              name="Configuration"
+              parent="menu_shift_planning_root"
+              sequence="90"
+              groups="group_shift_planner_manager"/>
+
+    <menuitem id="menu_staff_attributes"
+              name="Staff Attributes"
+              parent="menu_shift_planning_config"
+              action="action_staff_attribute"
+              sequence="10"/>
+
+    <menuitem id="menu_shift_requirements"
+              name="Shift Requirements"
+              parent="menu_shift_planning_config"
+              action="action_shift_requirement"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_employee_form_shift_attributes" model="ir.ui.view">
+        <field name="name">hr.employee.form.shift.attributes</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Shift Attributes"
+                      groups="restaurant_shift_planner.group_shift_planner_user">
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not shift_attribute_alert">
+                        <field name="shift_attribute_alert" readonly="1" nolabel="1"/>
+                    </div>
+                    <field name="shift_attribute_value_ids"
+                           context="{'default_employee_id': id}">
+                        <list editable="bottom"
+                              decoration-danger="status == 'expired'"
+                              decoration-warning="status == 'expiring'"
+                              decoration-muted="status == 'future'">
+                            <field name="attribute_id"/>
+                            <field name="value_type" column_invisible="1"/>
+                            <field name="value_bool" string="Has It"
+                                   readonly="value_type not in ('flag', 'certification')"/>
+                            <field name="value_number" string="Level"
+                                   readonly="value_type in ('flag', 'certification')"/>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                            <field name="status"/>
+                            <field name="note" optional="hide"/>
+                        </list>
+                    </field>
+                    <div class="text-muted mt-2">
+                        Values are dated rather than replaced. To change a
+                        level, set an end date on the current row and add a new
+                        one — that keeps past rosters explainable.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

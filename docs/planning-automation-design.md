@@ -1,6 +1,7 @@
 # Automated Shift Planning — Design Proposal
 
-**Status:** proposal, not implemented
+**Status:** phase 1a implemented in `restaurant_shift_planner/` (attributes,
+requirements, matching, gap report); the rest is still proposal
 **Scope:** turn the Planning module from "Rogers builds the roster by hand" into
 "Rogers sets the parameters, the system builds the roster and Rogers approves it"
 
@@ -210,17 +211,21 @@ new rules for years and none of them should need a developer.
 | Value type | Examples | Requirement form |
 |---|---|---|
 | `flag` | keyholder, till-trained, can drive, closing-certified | must be true |
-| `level` (0–5) | grill, bar, service speed, guest handling, German | must be ≥ N |
+| `level` (0–3) | grill, bar, service speed, guest handling, German | must be ≥ N |
+| `number` | reliability score, tenure in days | must be ≥ / ≤ N |
 | `certification` | IfSG §43 hygiene, first aid, alcohol service | must be **valid on the shift's date** |
-| `computed` | reliability, tenure days, hours booked this period | must be ≥ / ≤ N |
 
-Four types is enough. A certification is a flag with validity dates; a computed
-attribute is a level or number that a nightly cron writes instead of a human.
-That last one is what unifies things: **the reliability score from §6 is just
-another attribute**, so the strong-day rule needs no special-case code.
+Four types is enough, and a certification is really a flag with validity dates.
+
+Whether a value is typed in by a manager or written nightly by the system is a
+*separate* field, not a fifth type — otherwise every requirement would have to
+know the difference. That separation is what unifies things: **the reliability
+score from §6 is just another attribute**, so the strong-day rule needs no
+special-case code.
 
 Fields: `code`, `name`, `category`, `value_type`, `scale_min`, `scale_max`,
-`compute_method`, `expires`, `review_interval_months`.
+`scale_labels`, `compute_method`, `expiry_warning_days`,
+`review_interval_months`.
 
 ### 5.2 Staff values — effective dated, not overwritten
 
@@ -549,7 +554,8 @@ still better off than today.
 
 | Phase | Delivers | Value on its own |
 |---|---|---|
-| **1** | Attributes + requirements + the `_evaluate` function; periods, availability window, staff grid, reminders, quota rule. Rogers still assigns manually, but gets live warnings and the gap report. | The data stops living in WhatsApp and in one person's head. Rogers finds out on Tuesday that Saturday has no qualified griller. |
+| **1a** ✅ | Attributes, requirements, the evaluation routine, the live slot warning and the coverage gap report. Implemented in `restaurant_shift_planner`. | Rogers finds out on Tuesday that Saturday has no qualified griller, and cannot assign someone whose hygiene certificate lapsed. |
+| **1b** | Periods, availability window, staff grid, reminders, quota rule. Rogers still assigns manually. | The data stops living in WhatsApp and in one person's head. |
 | **2** | Coverage matrix + generator with **hard constraints only** → draft roster. | Legally-invalid, cap-breaking and under-qualified rosters become impossible. Most of the manual time disappears. |
 | **3** | Soft objectives, weights, fairness ledger, best-fit scoring, explanations. | The roster stops merely being valid and starts being *good*, and defensible. |
 | **4** | Computed reliability attribute from attendance + task data, demand forecast from POS, labour cost budget, development placements. | The system starts managing, not just scheduling. |

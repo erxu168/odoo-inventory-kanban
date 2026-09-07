@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_attribute_user,attribute.user,model_restaurant_staff_attribute,group_shift_planner_user,1,0,0,0
+access_attribute_manager,attribute.manager,model_restaurant_staff_attribute,group_shift_planner_manager,1,1,1,1
+access_attribute_value_user,attribute.value.user,model_restaurant_staff_attribute_value,group_shift_planner_user,1,0,0,0
+access_attribute_value_manager,attribute.value.manager,model_restaurant_staff_attribute_value,group_shift_planner_manager,1,1,1,1
+access_requirement_user,requirement.user,model_restaurant_shift_requirement,group_shift_planner_user,1,0,0,0
+access_requirement_manager,requirement.manager,model_restaurant_shift_requirement,group_shift_planner_manager,1,1,1,1
+access_gap_report_manager,gap.report.manager,model_restaurant_shift_gap_report,group_shift_planner_manager,1,1,1,1
+access_gap_line_manager,gap.line.manager,model_restaurant_shift_gap_line,group_shift_planner_manager,1,1,1,1

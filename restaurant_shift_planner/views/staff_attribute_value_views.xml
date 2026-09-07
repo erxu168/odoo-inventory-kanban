@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_attribute_value_list" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.value.list</field>
+        <field name="model">restaurant.staff.attribute.value</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="status == 'expired'"
+                  decoration-warning="status == 'expiring'"
+                  decoration-muted="status == 'future'">
+                <field name="employee_id"/>
+                <field name="attribute_id"/>
+                <field name="display_value" string="Value"/>
+                <field name="valid_from"/>
+                <field name="valid_until"/>
+                <field name="status"/>
+                <field name="review_due" string="Review Due" optional="show"/>
+                <field name="source" optional="hide"/>
+                <field name="note" optional="hide"/>
+                <field name="value_type" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_attribute_value_form" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.value.form</field>
+        <field name="model">restaurant.staff.attribute.value</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_close_today" type="object"
+                            string="End As Of Today" class="btn-secondary"
+                            invisible="valid_until != False"
+                            help="Supersede this value instead of editing it, so past rosters stay explainable."/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="future,current,expiring,expired"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="attribute_id"/>
+                            <field name="value_type" invisible="1"/>
+                            <field name="value_bool"
+                                   invisible="value_type not in ('flag', 'certification')"/>
+                            <field name="value_number"
+                                   invisible="value_type in ('flag', 'certification')"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"
+                                   placeholder="Leave empty for no end date"/>
+                            <field name="reviewed_on"/>
+                            <field name="source"/>
+                        </group>
+                    </group>
+                    <group string="Evidence">
+                        <field name="evidence" filename="evidence_filename"/>
+                        <field name="evidence_filename" invisible="1"/>
+                        <field name="note" placeholder="Who assessed this, and on what basis"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_attribute_value_search" model="ir.ui.view">
+        <field name="name">restaurant.staff.attribute.value.search</field>
+        <field name="model">restaurant.staff.attribute.value</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="attribute_id"/>
+                <filter name="current" string="Currently Valid"
+                        domain="[('status', '=', 'current')]"/>
+                <filter name="expiring" string="Expiring Soon"
+                        domain="[('status', '=', 'expiring')]"/>
+                <filter name="expired" string="Expired"
+                        domain="[('status', '=', 'expired')]"/>
+                <separator/>
+                <filter name="review_due" string="Due For Review"
+                        domain="[('review_due', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_employee" string="Employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_attribute" string="Attribute"
+                            context="{'group_by': 'attribute_id'}"/>
+                    <filter name="group_category" string="Category"
+                            context="{'group_by': 'category'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_attribute_value" model="ir.actions.act_window">
+        <field name="name">Staff Attribute Values</field>
+        <field name="res_model">restaurant.staff.attribute.value</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_employee': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Record what each person can do</p>
+            <p>Values carry validity dates rather than being overwritten, so a
+            past roster can still be explained and a certificate's validity on
+            a given day stays provable.</p>
+        </field>
+    </record>
+
+    <record id="action_attribute_value_attention" model="ir.actions.act_window">
+        <field name="name">Expiring &amp; Overdue</field>
+        <field name="res_model">restaurant.staff.attribute.value</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">['|', ('status', 'in', ['expiring', 'expired']), ('review_due', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing needs attention</p>
+            <p>Certificates about to lapse and values that have gone stale
+            appear here. A hard requirement starts failing silently the day a
+            certificate expires.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_shift_gap_report_form" model="ir.ui.view">
+        <field name="name">restaurant.shift.gap.report.form</field>
+        <field name="model">restaurant.shift.gap.report</field>
+        <field name="arch" type="xml">
+            <form string="Coverage Gaps">
+                <group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group>
+                        <field name="thin_threshold"/>
+                        <field name="include_soft"/>
+                    </group>
+                </group>
+                <field name="line_ids" readonly="1" nolabel="1">
+                    <list decoration-danger="severity == 'hard'"
+                          decoration-warning="severity == 'soft'"
+                          create="false" delete="false">
+                        <field name="shift_date"/>
+                        <field name="slot_id"/>
+                        <field name="role_id" optional="show"/>
+                        <field name="issue"/>
+                        <field name="message"/>
+                        <field name="employee_id" optional="hide"/>
+                        <field name="candidate_count" string="Qualified" optional="hide"/>
+                        <field name="severity" column_invisible="1"/>
+                    </list>
+                </field>
+                <div class="text-muted mt-2">
+                    Run this while there is still time to act. A shift nobody
+                    qualifies for is a phone call today, not a crisis on the
+                    night.
+                </div>
+                <footer>
+                    <button name="action_run" type="object" string="Run"
+                            class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_shift_gap_report" model="ir.actions.act_window">
+        <field name="name">Coverage Gap Report</field>
+        <field name="res_model">restaurant.shift.gap.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

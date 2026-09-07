@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Live requirement check while the manager assigns by hand. Same
+         evaluation the generator will use in phase 2, so the two can never
+         disagree about who is suitable. -->
+    <record id="view_planning_slot_form_requirements" model="ir.ui.view">
+        <field name="name">planning.slot.form.requirements</field>
+        <field name="model">planning.slot</field>
+        <field name="inherit_id" ref="planning.planning_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group groups="restaurant_shift_planner.group_shift_planner_manager"
+                       invisible="planner_requirement_state == 'na'">
+                    <field name="planner_requirement_state" readonly="1"/>
+                    <field name="planner_requirement_message" readonly="1"
+                           invisible="not planner_requirement_message"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

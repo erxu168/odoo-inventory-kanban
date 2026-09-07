@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- A starting set, meant to be edited. Ten or so is the right size to
+         launch with: an attribute that no requirement references is dead
+         weight, and the usage counter on the form will show it.
+
+         Deliberately absent: reliability and tenure. Those become useful once
+         they are computed from attendance and task data (phase 4). A
+         hand-typed reliability score is the subjective judgement this module
+         exists to replace. -->
+    <data noupdate="1">
+
+        <record id="attr_keyholder" model="restaurant.staff.attribute">
+            <field name="name">Keyholder</field>
+            <field name="code">keyholder</field>
+            <field name="category">authorisation</field>
+            <field name="value_type">flag</field>
+            <field name="sequence">10</field>
+            <field name="description">May open and lock up the premises, and is responsible for the alarm.</field>
+        </record>
+
+        <record id="attr_shift_lead" model="restaurant.staff.attribute">
+            <field name="name">Shift Lead</field>
+            <field name="code">shift_lead</field>
+            <field name="category">authorisation</field>
+            <field name="value_type">flag</field>
+            <field name="sequence">20</field>
+            <field name="description">Can run a shift: takes decisions, handles complaints, briefs the crew.</field>
+        </record>
+
+        <record id="attr_till" model="restaurant.staff.attribute">
+            <field name="name">Till / Cash Handling</field>
+            <field name="code">till_trained</field>
+            <field name="category">authorisation</field>
+            <field name="value_type">flag</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="attr_grill" model="restaurant.staff.attribute">
+            <field name="name">Grill</field>
+            <field name="code">grill</field>
+            <field name="category">skill</field>
+            <field name="value_type">level</field>
+            <field name="scale_min">0</field>
+            <field name="scale_max">3</field>
+            <field name="scale_labels">none, learning, works solo, can train others</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="attr_bar" model="restaurant.staff.attribute">
+            <field name="name">Bar</field>
+            <field name="code">bar</field>
+            <field name="category">skill</field>
+            <field name="value_type">level</field>
+            <field name="scale_min">0</field>
+            <field name="scale_max">3</field>
+            <field name="scale_labels">none, learning, works solo, can train others</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="attr_service_speed" model="restaurant.staff.attribute">
+            <field name="name">Service Speed</field>
+            <field name="code">service_speed</field>
+            <field name="category">skill</field>
+            <field name="value_type">level</field>
+            <field name="scale_min">0</field>
+            <field name="scale_max">3</field>
+            <field name="scale_labels">too slow for a busy shift, copes when steady, holds up when busy, sets the pace</field>
+            <field name="sequence">60</field>
+            <field name="description">How well the person holds up under pressure. This is the attribute a busy Friday should test.</field>
+        </record>
+
+        <record id="attr_guest_handling" model="restaurant.staff.attribute">
+            <field name="name">Guest Handling</field>
+            <field name="code">guest_handling</field>
+            <field name="category">skill</field>
+            <field name="value_type">level</field>
+            <field name="scale_min">0</field>
+            <field name="scale_max">3</field>
+            <field name="scale_labels">needs support, handles routine guests, handles difficult guests, handles complaints alone</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <record id="attr_german" model="restaurant.staff.attribute">
+            <field name="name">German</field>
+            <field name="code">german</field>
+            <field name="category">skill</field>
+            <field name="value_type">level</field>
+            <field name="scale_min">0</field>
+            <field name="scale_max">3</field>
+            <field name="scale_labels">none, basic, conversational, fluent</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <record id="attr_hygiene" model="restaurant.staff.attribute">
+            <field name="name">Hygiene Training (IfSG §43)</field>
+            <field name="code">hygiene_cert</field>
+            <field name="category">certification</field>
+            <field name="value_type">certification</field>
+            <field name="expiry_warning_days">60</field>
+            <field name="sequence">90</field>
+            <field name="description">Required before handling food. Must be refreshed every two years.</field>
+        </record>
+
+        <record id="attr_first_aid" model="restaurant.staff.attribute">
+            <field name="name">First Aid</field>
+            <field name="code">first_aid</field>
+            <field name="category">certification</field>
+            <field name="value_type">certification</field>
+            <field name="expiry_warning_days">60</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <record id="attr_late_transport" model="restaurant.staff.attribute">
+            <field name="name">Can Get Home After Closing</field>
+            <field name="code">late_transport</field>
+            <field name="category">trait</field>
+            <field name="value_type">flag</field>
+            <field name="review_interval_months">6</field>
+            <field name="sequence">110</field>
+            <field name="description">Has transport home after the last bus. Without it, closing shifts are not realistic.</field>
+        </record>
+
+    </data>
+</odoo>

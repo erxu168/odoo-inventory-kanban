@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Rule form: day / hour window next to the validity period -->
+    <record id="product_pricelist_item_form_view_waj_lunch" model="ir.ui.view">
+        <field name="name">product.pricelist.item.form.waj.lunch</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="arch" type="xml">
+            <group name="pricelist_rule_limits" position="inside">
+                <field name="waj_time_restricted"/>
+                <label for="waj_hour_from" string="Hours" invisible="not waj_time_restricted"/>
+                <div class="o_row" invisible="not waj_time_restricted">
+                    <field name="waj_hour_from" widget="float_time" nolabel="1"/>
+                    <span>to</span>
+                    <field name="waj_hour_to" widget="float_time" nolabel="1"/>
+                </div>
+                <label for="waj_weekday_mon" string="Days" invisible="not waj_time_restricted"/>
+                <div class="d-flex flex-wrap gap-3" invisible="not waj_time_restricted">
+                    <span class="text-nowrap"><field name="waj_weekday_mon" nolabel="1"/> Mon</span>
+                    <span class="text-nowrap"><field name="waj_weekday_tue" nolabel="1"/> Tue</span>
+                    <span class="text-nowrap"><field name="waj_weekday_wed" nolabel="1"/> Wed</span>
+                    <span class="text-nowrap"><field name="waj_weekday_thu" nolabel="1"/> Thu</span>
+                    <span class="text-nowrap"><field name="waj_weekday_fri" nolabel="1"/> Fri</span>
+                    <span class="text-nowrap"><field name="waj_weekday_sat" nolabel="1"/> Sat</span>
+                    <span class="text-nowrap"><field name="waj_weekday_sun" nolabel="1"/> Sun</span>
+                </div>
+                <field name="waj_tz" invisible="not waj_time_restricted"/>
+            </group>
+        </field>
+    </record>
+
+    <!-- Standalone rule list -->
+    <record id="product_pricelist_item_tree_view_waj_lunch" model="ir.ui.view">
+        <field name="name">product.pricelist.item.list.waj.lunch</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="date_end" position="after">
+                <field name="waj_time_restricted" string="Days &amp; Hours" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Rule list embedded in the pricelist form -->
+    <record id="product_pricelist_view_waj_lunch" model="ir.ui.view">
+        <field name="name">product.pricelist.form.waj.lunch</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='item_ids']/list/field[@name='date_start']" position="before">
+                <field name="waj_time_restricted" string="Days &amp; Hours" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

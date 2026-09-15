@@ -150,9 +150,9 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 
 <div class="wrap">
 <header class="masthead">
-  <div class="eyebrow">Krawings · Odoo 19 · floor training</div>
+  <div class="eyebrow">Krawings · staff guide</div>
   <h1>Restaurant Tasks &amp; Inventory Count</h1>
-  <p class="lede">How to run your shift checklist, sign off, and count stock from your phone. Each lesson says who it is for: <span class="role staff">Staff</span> <span class="role manager">Manager</span> <span class="role admin">Admin</span></p>
+  <p class="lede">How to run your shift checklist, sign off, and count stock from your phone.</p>
 </header>
 
 <div class="layout">
@@ -161,18 +161,13 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <summary>Contents</summary>
 <div class="toc-title">Contents</div>
 <a href="#start">Before you start</a>
-<a class="part" href="#tasks">A · Restaurant Tasks</a>
-<a href="#a1">A1 · Your shift checklist</a>
-<a href="#a2">A2 · Running shifts</a>
-<a href="#a3">A3 · Rules &amp; access</a>
-<a class="part" href="#inventory">B · Inventory Count</a>
-<a href="#b1">B1 · Counting stock</a>
-<a href="#b2">B2 · Applying the count</a>
-<a href="#b3">B3 · Other counting screens</a>
+<a class="part" href="#tasks">A · Shift checklist</a>
+<a href="#a1">Your shift checklist</a>
+<a class="part" href="#inventory">B · Stock count</a>
+<a href="#b1">Counting stock</a>
 <a class="part" href="#ref">C · Quick reference</a>
 <a href="#colours">Colours &amp; statuses</a>
 <a href="#faq">Questions</a>
-<a href="#maint">Maintenance</a>
 </details>
 </nav>
 
@@ -182,36 +177,27 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <header><span class="partno">Start</span><h2>Before you start</h2></header>
 
 <div class="lesson">
-<h3>Logging in <span class="role staff">Staff</span></h3>
+<h3>Logging in</h3>
 <ol class="steps">
 <li>Open the Odoo address on your phone, tablet, or the back-office PC.</li>
 <li>Sign in with <strong>your own</strong> account. Sign-offs and stock counts are recorded under whoever is logged in.</li>
 <li>You land on <strong>Apps Home</strong> ("Select an app to get started"), one tile per app you can use. Tap <strong>Restaurant Tasks</strong> or <strong>Inventory</strong>.</li>
 <li>To come back here, tap the app-grid icon in the top-left corner of any Odoo page.</li>
 </ol>
+<p>If a menu described below is missing for you, ask your manager to check your account.</p>
 <div class="callout">
 <p><strong>Put it on your home screen.</strong> iPhone: Share → <em>Add to Home Screen</em>. Android: browser menu → <em>Add to Home screen</em>. It then opens like an app.</p>
 </div>
 </div>
 
-<div class="lesson">
-<h3>Who sees what</h3>
-<div class="tablewrap"><table>
-<tr><th>Role</th><th>Restaurant Tasks</th><th>Inventory</th></tr>
-<tr><td><span class="role staff" style="margin:0">Staff</span></td><td><em>My Tasks</em> only: the shift lists assigned to you</td><td>Count products, add missing products</td></tr>
-<tr><td><span class="role manager" style="margin:0">Manager</span></td><td>Plus <em>Task Lists</em>, <em>All Tasks</em>, <em>Dashboard</em>, <em>Task Templates</em> for their own location</td><td>Plus <strong>Apply All</strong> to post the adjustments</td></tr>
-<tr><td><span class="role admin" style="margin:0">Admin</span></td><td>Everything, all locations, plus <em>Escalation Rules</em> and the <em>Reset</em> buttons</td><td>Same as Manager</td></tr>
-</table></div>
-<p>If a menu described below is missing for you, your account does not have that role. Ask your manager.</p>
-</div>
 </section>
 
 <!-- ═══════════════════════ PART A ═══════════════════════ -->
 <section class="part" id="tasks">
-<header><span class="partno">Part A</span><h2>Restaurant Tasks</h2></header>
+<header><span class="partno">Part A</span><h2>Your shift checklist</h2></header>
 
 <div class="lesson" id="a1">
-<h3>A1 · Completing your shift checklist <span class="role staff">Staff</span></h3>
+<h3>Completing your shift checklist</h3>
 
 <h4>Step 1 · Open My Tasks</h4>
 <div class="path"><span>Restaurant Tasks</span><span>My Tasks</span></div>
@@ -232,10 +218,10 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 </figure>
 </div>
 
-<div class="callout warn"><p><strong>Nothing on the board?</strong> Either no list has been generated for your shift yet (ask your manager), or your login is not linked to your employee record (ask the admin).</p></div>
+<div class="callout warn"><p><strong>Nothing on the board?</strong> Your shift list has not been created yet, or your login is not linked to your employee record. Ask your manager.</p></div>
 
 <h4>Step 2 · Read the shift list</h4>
-<p>The list opens as a form. Across the top runs a status bar <strong>Draft → Active → Completed</strong>, then the shift details: template, planning shift, your name, location, shift start and end, the <strong>Checkout Policy</strong> (see Step 6) and your <strong>Completion %</strong>. Under the <strong>Tasks</strong> tab every task is one row.</p>
+<p>The list opens as a form. Across the top runs a status bar <strong>Draft → Active → Completed</strong>, then the shift details: your name, location, shift start and end, the <strong>Checkout Policy</strong> (see Step 6) and your <strong>Completion %</strong>. Under the <strong>Tasks</strong> tab every task is one row.</p>
 
 <div class="mock">
 <figure>
@@ -273,7 +259,7 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <h4>Step 4 · A task with a checklist or a photo</h4>
 <p>Tap the task <em>name</em> to open the task screen. It has its own status bar <strong>To Do → In Progress → Done</strong> and these tabs:</p>
 <ul>
-<li><strong>Instructions</strong>: the manager's notes on how to do the job (only shown when there are some).</li>
+<li><strong>Instructions</strong>: notes on how to do the job (only shown when there are some).</li>
 <li><strong>Checklist</strong>: one toggle per sub-item. Flip each as you finish; the checklist bar fills. <strong>Every toggle must be on</strong> before the task can be marked done.</li>
 <li><strong>Photo Proof</strong>: only for <em>Photo Required</em> tasks. Tap the image box, take or pick a photo (the cleaned grill, the fridge thermometer).</li>
 <li><strong>Comment</strong>: optional note for your manager ("Dishwasher leaking again, used the small one").</li>
@@ -297,108 +283,26 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <h4>Step 6 · If you are running late</h4>
 <ul>
 <li>Every 10 minutes the system checks deadlines. An overdue task creates a <strong>To-Do activity</strong> on your shift list (clock icon in the chatter, and the activity bell at the top of Odoo).</li>
-<li>Overdue tasks can be <strong>escalated</strong>: after a set delay an email and activity go to your manager, then to the next level (see A3).</li>
-<li><strong>Checkout policy.</strong> If the checklist is set to <em>Block Checkout</em>, Attendance will not let you clock out until every task is done:<span class="msg">Cannot check out: incomplete tasks with "Block Checkout" policy. Complete all required tasks first.</span>With <em>Show Warning</em> you can clock out, but the incomplete score is recorded on your attendance.</li>
+<li>Overdue tasks are also <strong>escalated</strong>: after a set delay your manager is notified, then the next person up.</li>
+<li><strong>Checkout policy.</strong> If your checklist is set to <em>Block Checkout</em>, Attendance will not let you clock out until every task is done:<span class="msg">Cannot check out: incomplete tasks with "Block Checkout" policy. Complete all required tasks first.</span>With <em>Show Warning</em> you can clock out, but the incomplete score is recorded on your attendance.</li>
 </ul>
 
-<div class="callout"><p><strong>Marked something done by accident?</strong> Only a manager can <em>Reset</em> a task back to To Do (this also clears its photo and checklist). Tell them.</p></div>
+<div class="callout"><p><strong>Marked something done by accident?</strong> Tell your manager: only they can reset a task back to To Do (this also clears its photo and checklist).</p></div>
 </div>
-
-<!-- A2 -->
-<div class="lesson" id="a2">
-<h3>A2 · Setting up and running shifts <span class="role manager">Manager</span></h3>
-
-<h4>Step 1 · Build a checklist template (once)</h4>
-<div class="path"><span>Restaurant Tasks</span><span>Configuration</span><span>Task Templates</span><span>New</span></div>
-<ol class="steps">
-<li><strong>Name</strong> it: <em>Opening Shift Checklist</em>, <em>Closing – Kitchen</em>, <em>Weekly Deep Clean</em>.</li>
-<li><strong>Location</strong>: pick your restaurant to restrict the template to it, or leave empty for everywhere.</li>
-<li><strong>Checkout Policy</strong>: <em>Show Warning</em> (default) or <em>Block Checkout</em> (staff cannot clock out until all tasks are done). Use Block only for lists staff can always finish.</li>
-<li>Optional <strong>Description</strong> for your own notes.</li>
-<li>In the <strong>Tasks</strong> table tap <em>Add a line</em> per task: drag the handle to reorder, choose <strong>Checkbox</strong> or <strong>Photo Required</strong>, tick <strong>Has deadline</strong> and set the minutes after shift start (<code>30</code> = due half an hour into the shift). The <strong>Checklist</strong> column shows how many sub-items the task has.</li>
-<li><span class="btn primary">Save</span>. The chatter records who changed what. Untick <strong>Active</strong> to retire a template without losing history.</li>
-</ol>
-<div class="callout"><p><strong>Checklist sub-items</strong> (the toggles staff see under a task) are not editable from this table. The admin sets them up (see A3).</p></div>
-
-<h4>Step 2 · Assign a shift list</h4>
-<div class="path"><span>Restaurant Tasks</span><span>Task Lists</span><span>New</span></div>
-<ol class="steps">
-<li>Pick the <strong>Template</strong>, the <strong>Employee</strong> and the <strong>Location</strong>.</li>
-<li>Set <strong>Shift Start</strong> and <strong>Shift End</strong>. Deadlines are calculated from <em>Shift Start</em>, so get it right.</li>
-<li>Optionally link the <strong>Planning Shift</strong> from the Planning app.</li>
-<li><span class="btn primary">Save</span>, then tap <span class="btn primary">Generate Tasks</span> in the header.</li>
-</ol>
-<p><strong>Generate Tasks</strong> copies every task and sub-item from the template, calculates the deadlines and sets the list to <strong>Active</strong>. It now shows on the employee's My Tasks board, named <code>Employee — Template — date</code>. Create one list per employee per shift.</p>
-
-<h4>Step 3 · Monitor during the shift</h4>
-<ul>
-<li><strong>Task Lists</strong> (list, board or form) shows every list for your location: employee, template, shift start, <code>done/total</code>, progress bar, status. Filters: <em>Active, Completed, Expired, Today, This Week</em>. Group by <em>Employee, Location, Status, Shift Date</em>.</li>
-<li><strong>All Tasks</strong> lists every individual task with <em>Overdue / To Do / Done</em> filters. Tap <span class="btn success">✓ Done</span> to close a task on someone's behalf, or open it to <strong>Reset</strong>.</li>
-<li><strong>Dashboard → Today's Overview</strong>: bar chart of today's tasks per employee split by status. <strong>Weekly Trends</strong>: average completion % per day since Monday. <strong>Overdue Tasks</strong>: everything currently past its deadline.</li>
-</ul>
-
-<h4>Step 4 · Fix problems</h4>
-<div class="tablewrap"><table>
-<tr><th>Situation</th><th>What to do</th></tr>
-<tr><td>Task marked done by mistake</td><td>Open the task → <strong>Reset</strong>. Photo and checklist are cleared.</td></tr>
-<tr><td>Wrong employee or template on a list</td><td>An Admin taps <strong>Reset</strong> on the list (back to Draft, all tasks removed), edits it, then <strong>Generate Tasks</strong> again.</td></tr>
-<tr><td>Staff cannot clock out</td><td>Complete or reset the open tasks; or switch the template to <em>Show Warning</em> for next time.</td></tr>
-<tr><td>Employee sees nothing in My Tasks</td><td>Their user is not linked to the employee (Employees → employee → HR Settings → Related User).</td></tr>
-</table></div>
-
-<h4>Step 5 · Where the scores show up</h4>
-<ul>
-<li><strong>Attendance</strong> record: a <em>Task Completion</em> section with the completion % and whether checkout is blocked. The attendance list has an optional <em>Task Completion %</em> column.</li>
-<li><strong>Employee</strong> form: an <strong>Avg Completion</strong> smart button opens all their lists.</li>
-<li><strong>Planning</strong> shift: a <strong>Task Lists</strong> smart button once lists are linked.</li>
-</ul>
-</div>
-
-<!-- A3 -->
-<div class="lesson" id="a3">
-<h3>A3 · Rules, access and maintenance <span class="role admin">Admin</span></h3>
-
-<h4>Escalation rules</h4>
-<div class="path"><span>Restaurant Tasks</span><span>Configuration</span><span>Escalation Rules</span></div>
-<div class="tablewrap"><table>
-<tr><th>Field</th><th>Meaning</th></tr>
-<tr><td>Level</td><td>1, 2, 3, evaluated in order</td></tr>
-<tr><td>Delay After Overdue (min)</td><td>How long after the deadline this level fires</td></tr>
-<tr><td>Recipient</td><td>Assigned Employee · Department Manager · Employee's Manager · Specific Employee</td></tr>
-<tr><td>Send Email</td><td>Also email "🚨 Escalation Level N — Overdue Task" to the recipient's work email</td></tr>
-<tr><td>Active</td><td>Untick to pause the rule</td></tr>
-</table></div>
-<p>Example chain: Level 1 at +0 min → assigned employee · Level 2 at +30 min → employee's manager · Level 3 at +90 min → the owner. The job runs every 5 minutes; each level fires once per task.</p>
-
-<h4>Access rights</h4>
-<div class="path"><span>Settings</span><span>Users</span><span>user</span><span>Restaurant Tasks</span></div>
-<ul>
-<li><strong>Staff</strong> see only lists whose employee's <em>Related User</em> is them, so every staff account must be linked to its employee record.</li>
-<li><strong>Managers</strong> see only lists whose location matches the <strong>Work Location</strong> on <em>their own</em> employee record. A manager without a work location sees an empty Task Lists screen.</li>
-<li><strong>Owner / Admin</strong> sees everything.</li>
-</ul>
-
-<h4>Checklist sub-items on templates</h4>
-<p>Sub-items live on the individual task template; the Task Templates screen only shows their count. To edit them, activate developer mode (Settings → <em>Activate the developer mode</em>), open the task template record and add lines under <strong>Checklist Items</strong>. Ask the developer to add an open-form button to the tasks table if you do this often.</p>
-
-<h4>Scheduled jobs and email</h4>
-<p>Two scheduled actions run on their own (Settings → Technical → Scheduled Actions): <em>Restaurant Tasks: Check Overdue</em> every 10 min and <em>Restaurant Tasks: Escalation Chain</em> every 5 min. Outgoing mail must be configured for escalation emails to leave the server.</p>
-</div>
-</section>
 
 <!-- ═══════════════════════ PART B ═══════════════════════ -->
 <section class="part" id="inventory">
-<header><span class="partno">Part B</span><h2>Inventory Count</h2></header>
+<header><span class="partno">Part B</span><h2>Counting stock</h2></header>
 
 <div class="lesson" id="b1">
-<h3>B1 · Counting stock on your phone <span class="role staff">Staff</span></h3>
+<h3>Counting stock on your phone</h3>
 
 <h4>Step 1 · Open the counting screen</h4>
 <div class="path"><span>Inventory</span><span>Operations</span><span>Adjustments</span><span>Mobile View: Physical Inventory</span></div>
-<p>The screen has a header <strong>Physical Inventory</strong> with <span class="btn">Refresh</span> and <span class="btn success">Apply All</span> (managers only, see B2); a <strong>Search product…</strong> box and a <strong>Location</strong> dropdown; three chips <strong>Total · Counted · Differences</strong>; one card per product per location, 20 at a time with <span class="btn primary">Load More</span> at the bottom; and a round <strong>+</strong> button for products that are missing from the list.</p>
+<p>The screen has a header <strong>Physical Inventory</strong> with a <span class="btn">Refresh</span> button (ignore <span class="btn success">Apply All</span>, it is for managers and will refuse you); a <strong>Search product…</strong> box and a <strong>Location</strong> dropdown; three chips <strong>Total · Counted · Differences</strong>; one card per product per location, 20 at a time with <span class="btn primary">Load More</span> at the bottom; and a round <strong>+</strong> button for products that are missing from the list.</p>
 
 <h4>Step 2 · Pick the location you are counting</h4>
-<p>Choose your area in the <strong>Location</strong> dropdown (<em>Kitchen/Dry Store</em>, <em>Bar/Fridge 1</em>). Count one location at a time: the list stays short and Apply All stays safe. <strong>Search</strong> matches the product name, not the reference code.</p>
+<p>Choose your area in the <strong>Location</strong> dropdown (<em>Kitchen/Dry Store</em>, <em>Bar/Fridge 1</em>). Count one location at a time. <strong>Search</strong> matches the product name, not the reference code.</p>
 
 <h4>Step 3 · Read a card</h4>
 <div class="mock">
@@ -416,7 +320,7 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <div class="tap"><span>Tap to count…</span><span>⌨</span></div>
 </div>
 </div>
-<figcaption>Top card: counted, 2 kg over, green. Bottom card: not counted yet. <strong>On Hand</strong> is what Odoo expects; <strong>Counted</strong> is what you found.</figcaption>
+<figcaption>Top card: counted, 2 kg over, green. Bottom card: not counted yet. <strong>On Hand</strong> is what the system expects; <strong>Counted</strong> is what you found.</figcaption>
 </figure>
 
 <figure>
@@ -448,7 +352,7 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <div class="callout good"><p><strong>Counts save the moment you confirm.</strong> Several people can count different locations at once. Tap <em>Refresh</em> to see what others have entered.</p></div>
 
 <h4>Step 5 · Correct a mistake</h4>
-<p>Tap the count field again, enter the right number, <strong>Confirm Count</strong>. The new value replaces the old one. Nothing is final until a manager applies the adjustment.</p>
+<p>Tap the count field again, enter the right number, <strong>Confirm Count</strong>. The new value replaces the old one. Nothing is final until your manager applies the count.</p>
 
 <h4>Step 6 · Add a product that is not listed</h4>
 <ol class="steps">
@@ -462,34 +366,17 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <p>When every card in your location shows a counted value, tell your manager. Do not press Apply All: without manager rights you only get <code>Access denied. Only stock managers can apply inventory adjustments.</code></p>
 </div>
 
-<!-- B2 -->
-<div class="lesson" id="b2">
-<h3>B2 · Reviewing and applying the count <span class="role manager">Manager</span></h3>
-<ol class="steps">
-<li>Open the same screen and select the <strong>Location</strong> that was counted.</li>
-<li>Scan the cards. The <strong>Differences</strong> chip says how many loaded cards disagree with the system; red-tinted cards are shortages, green-tinted are surpluses. Tap <em>Load More</em> until everything is loaded.</li>
-<li>Investigate anything surprising before applying: recount, check the bin next door, check for a pending transfer.</li>
-<li>Tap <span class="btn success">Apply All</span>. A yellow banner asks <em>This will apply all inventory adjustments and create stock moves. Are you sure?</em> Tap <strong>Yes</strong>.</li>
-<li>The toast <code>Inventory adjustments applied!</code> confirms. Odoo posts a stock move for every difference; on-hand now equals the counts, counted values reset, and the cards reload.</li>
-</ol>
-<div class="callout bad">
-<p><strong>Apply All follows the Location dropdown.</strong> With <em>All Locations</em> selected it applies every internal location in the warehouse at once. Always select the location first.</p>
-<p>Applying cannot be undone from this screen. The moves it creates are listed under <strong>Inventory → Reporting → Moves History</strong>; a wrong count is fixed by counting again and applying again. Apply All needs the <em>Inventory / Administrator</em> access right.</p>
-</div>
-<p>The same counts also appear in the standard <strong>Inventory → Operations → Physical Inventory</strong> list, where you can review them with Odoo's usual filters and history.</p>
-</div>
-
 <!-- B3 -->
 <div class="lesson" id="b3">
-<h3>B3 · If your counting screen looks different <span class="role staff">Staff</span></h3>
-<p>Three other versions of the counting screen exist (<em>Physical Inventory (Kanban)</em> and <em>Inventory Count (Pro)</em> under Inventory → Operations, and a standalone tablet app at <code>/inventory-count</code>). Same numpad, same rules, two columns instead of one list:</p>
+<h3>If your counting screen looks different</h3>
+<p>Some devices use a two-column version of the counting screen (<em>Physical Inventory (Kanban)</em>, <em>Inventory Count (Pro)</em>, or the tablet app). Same numpad, same rules:</p>
 <ul>
 <li>Left column <strong>To Count</strong>, right column <strong>Counted</strong>. A card moves right once you confirm.</li>
 <li>A progress bar at the top (<code>14 / 40 counted</code>).</li>
 <li>A <strong>✓ Match</strong> button directly on each card, so a matching shelf is one tap.</li>
 <li>A coloured stripe and chip on each card: grey <span class="badge">Pending</span>, green <span class="badge good">✓ Match</span>, blue <span class="badge info">+2.00 over</span>, red <span class="badge bad">1.00 short</span>.</li>
-<li>Tabs <strong>All / To Count / Done</strong> and a search box (Pro and standalone); a Location dropdown (standalone only).</li>
-<li><strong>Validate</strong> in the header is the manager's Apply All. The standalone app asks <em>Validate inventory and apply all adjustments?</em> and applies <strong>every counted product in every location</strong>, so finish all locations before validating there.</li>
+<li>Tabs <strong>All / To Count / Done</strong> and a search box; a Location dropdown on the tablet app.</li>
+<li>Leave the <strong>Validate</strong> button to your manager.</li>
 </ul>
 </div>
 </section>
@@ -521,23 +408,18 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 <dl class="faq">
 <dt>I completed everything but the list still says Active.</dt><dd>Tap <strong>Sign Off Shift</strong> in the header. Your signature must be saved first.</dd>
 <dt>✓ Done says a photo is required.</dt><dd>Open the task, go to <em>Photo Proof</em>, upload the picture, then <em>Mark Done</em>.</dd>
-<dt>I cannot clock out.</dt><dd>One of your lists uses <em>Block Checkout</em> and still has open tasks. Finish them or ask a manager to reset them.</dd>
-<dt>My count disappeared.</dt><dd>A manager applied the adjustment: on-hand now equals your count and the counted field reset. Check <em>On Hand</em>.</dd>
-<dt>The screen will not scroll on my iPhone.</dt><dd>Known Odoo issue after an update. Tell the admin (see Maintenance).</dd>
+<dt>I cannot clock out.</dt><dd>Your list uses <em>Block Checkout</em> and still has open tasks. Finish them or ask your manager.</dd>
+<dt>My count disappeared.</dt><dd>Your manager applied the count: on-hand now equals what you counted and the counted field reset. Check <em>On Hand</em>.</dd>
+<dt>The screen will not scroll on my iPhone.</dt><dd>Known issue after an Odoo update. Tell your manager.</dd>
 </dl>
 </div>
 
-<div class="lesson" id="maint">
-<h3>Maintenance <span class="role admin">Admin</span></h3>
-<p>After <strong>every Odoo 19 update</strong> re-apply the iOS scroll fix on the server (commands in the repository README): patch <code>webclient_layout.scss</code>, clear the <code>web.assets</code> attachments, restart the Odoo service. Without it the mobile screens do not scroll on iPhone and iPad.</p>
-<p>The <strong>WAJ BoM Mobile Fix</strong> module only tidies Manufacturing → Bills of Materials on phones (Reference, Type, Company and Unit columns hidden by default; the column picker brings them back). It has no workflow of its own.</p>
-</div>
 </section>
 
 </main>
 </div>
 
-<footer>Written from the module source in the odoo-inventory-kanban repository (restaurant_task_manager 19.0.3.0.0, mobile_physical_inventory 19.0.1.0.0). Check any screen against your live system before training.</footer>
+<footer>Questions about anything on this page? Ask your shift manager.</footer>
 </div>
 <script>
 (function(){

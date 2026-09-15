@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ Kanban ══════════════════ -->
+    <record id="view_location_kanban" model="ir.ui.view">
+        <field name="name">restaurant.location.kanban</field>
+        <field name="model">restaurant.location</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1" quick_create="false">
+                <field name="color"/>
+                <field name="attention_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex flex-column p-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="fs-5"><field name="name"/></strong>
+                                    <span t-if="record.code.raw_value" class="badge text-bg-light ms-2">
+                                        <field name="code"/>
+                                    </span>
+                                </div>
+                                <span t-if="record.attention_count.raw_value > 0"
+                                      class="badge rounded-pill text-bg-warning"
+                                      title="Contracts in their cancellation window and checks due">
+                                    <i class="fa fa-exclamation-triangle me-1" title="Attention"/><t t-out="record.attention_count.raw_value"/>
+                                </span>
+                            </div>
+                            <div class="text-muted small"><field name="full_address"/></div>
+                            <div class="mt-2 d-flex flex-wrap gap-3 small">
+                                <span><i class="fa fa-file-text-o me-1" title="Contracts"/><field name="active_contract_count"/> contracts</span>
+                                <span><i class="fa fa-tachometer me-1" title="Meters"/><field name="meter_count"/> meters</span>
+                                <span><i class="fa fa-recycle me-1" title="Waste streams"/><field name="waste_stream_count"/> bins</span>
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between align-items-center">
+                                <span class="small text-muted">Fixed cost / year</span>
+                                <strong><field name="annual_fixed_cost" widget="monetary"/></strong>
+                            </div>
+                            <div t-if="record.lease_termination_deadline.raw_value" class="small mt-1">
+                                <i class="fa fa-key me-1" title="Lease"/>Lease: cancel by <field name="lease_termination_deadline" widget="date"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ══════════════════ List ══════════════════ -->
+    <record id="view_location_list" model="ir.ui.view">
+        <field name="name">restaurant.location.list</field>
+        <field name="model">restaurant.location</field>
+        <field name="arch" type="xml">
+            <list string="Locations">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="full_address"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'open'"
+                       decoration-info="state == 'planned'"
+                       decoration-muted="state == 'closed'"/>
+                <field name="landlord_id"/>
+                <field name="monthly_rent_total" sum="Total"/>
+                <field name="lease_termination_deadline"/>
+                <field name="active_contract_count" string="Contracts"/>
+                <field name="attention_count" string="Attention"
+                       decoration-warning="attention_count > 0"/>
+                <field name="annual_fixed_cost" sum="Total"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Form ══════════════════ -->
+    <record id="view_location_form" model="ir.ui.view">
+        <field name="name">restaurant.location.form</field>
+        <field name="model">restaurant.location</field>
+        <field name="arch" type="xml">
+            <form string="Location">
+                <header>
+                    <button name="action_add_standard_checks" type="object"
+                            string="Add Standard Checks" class="btn-secondary"
+                            groups="restaurant_location.group_location_manager"
+                            help="Create the usual German restaurant obligations (grease trap, DGUV V3, extinguishers…) that are not yet on this site."/>
+                    <field name="state" widget="statusbar" statusbar_visible="planned,open,closed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Closed" bg_color="text-bg-secondary"
+                            invisible="state != 'closed'"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_contracts" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="active_contract_count" widget="statinfo" string="Contracts"/>
+                        </button>
+                        <button name="action_view_meters" type="object"
+                                class="oe_stat_button" icon="fa-tachometer">
+                            <field name="meter_count" widget="statinfo" string="Meters"/>
+                        </button>
+                        <button name="action_view_waste_streams" type="object"
+                                class="oe_stat_button" icon="fa-recycle">
+                            <field name="waste_stream_count" widget="statinfo" string="Waste Streams"/>
+                        </button>
+                        <button name="action_view_pickup_calendar" type="object"
+                                class="oe_stat_button" icon="fa-calendar" string="Pickup Calendar"/>
+                        <button name="action_view_compliance" type="object"
+                                class="oe_stat_button" icon="fa-check-square-o">
+                            <field name="compliance_count" widget="statinfo" string="Permits &amp; Checks"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Location"/>
+                        <h1><field name="name" placeholder="e.g. Landsberger Allee"/></h1>
+                        <div class="o_row">
+                            <label for="code" string="Code" class="me-2"/>
+                            <field name="code" placeholder="LA" class="oe_inline"/>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert" invisible="attention_count == 0">
+                        <i class="fa fa-exclamation-triangle me-1" title="Attention"/>
+                        <field name="attention_count" class="fw-bold"/> item(s) need attention:
+                        contracts inside their cancellation window or checks that are due.
+                        See the Contracts and Permits tabs.
+                    </div>
+
+                    <group>
+                        <group string="Address">
+                            <field name="street" placeholder="Street"/>
+                            <field name="street2" placeholder="Street 2"/>
+                            <div class="o_address_format" colspan="2">
+                                <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                <field name="city" placeholder="City" class="o_address_city"/>
+                            </div>
+                            <field name="country_id" options="{'no_create': True}"/>
+                            <field name="full_address" invisible="1"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="email" widget="email"/>
+                            <field name="website" widget="url"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group string="Premises">
+                            <field name="opened_on"/>
+                            <field name="closed_on" invisible="state != 'closed'"/>
+                            <field name="floor_area_sqm"/>
+                            <label for="seats_indoor" string="Seats"/>
+                            <div class="o_row">
+                                <field name="seats_indoor" class="oe_inline"/> indoor +
+                                <field name="seats_outdoor" class="oe_inline"/> outdoor =
+                                <field name="seats_total" class="oe_inline fw-bold"/>
+                            </div>
+                            <field name="business_registration_no"/>
+                            <field name="tax_office_no"/>
+                            <field name="broadcasting_fee_no"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Lease &amp; Landlord">
+                            <field name="landlord_id"/>
+                            <field name="property_manager_id"/>
+                            <field name="lease_contract_id"/>
+                            <field name="monthly_rent_total"/>
+                            <field name="lease_end_date"/>
+                            <field name="lease_termination_deadline"
+                                   decoration-danger="lease_termination_deadline and attention_count > 0"/>
+                        </group>
+                        <group string="Cost Overview">
+                            <field name="annual_fixed_cost"/>
+                            <field name="manager_user_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                            <field name="staff_user_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   groups="restaurant_location.group_location_manager"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Contracts" name="contracts">
+                            <field name="contract_ids" context="{'default_location_id': id}">
+                                <list decoration-warning="status == 'expiring'"
+                                      decoration-danger="status == 'expired'"
+                                      decoration-muted="status in ('cancelled', 'draft')"
+                                      default_order="contract_type, termination_deadline">
+                                    <field name="contract_type"/>
+                                    <field name="name"/>
+                                    <field name="provider_id"/>
+                                    <field name="contract_no" optional="show"/>
+                                    <field name="end_date"/>
+                                    <field name="termination_deadline"/>
+                                    <field name="annual_cost" sum="Total"/>
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'active'"
+                                           decoration-warning="status == 'expiring'"
+                                           decoration-danger="status == 'expired'"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Meters" name="meters">
+                            <field name="meter_ids" context="{'default_location_id': id}">
+                                <list decoration-warning="reading_overdue">
+                                    <field name="meter_type"/>
+                                    <field name="name"/>
+                                    <field name="contract_id"/>
+                                    <field name="physical_location" optional="show"/>
+                                    <field name="last_reading_value"/>
+                                    <field name="unit"/>
+                                    <field name="last_reading_date"/>
+                                    <field name="reading_overdue" widget="boolean" string="Overdue"/>
+                                    <button name="action_add_reading" type="object" string="Add Reading"
+                                            icon="fa-plus" class="btn-link"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Waste &amp; Recycling" name="waste">
+                            <field name="waste_stream_ids" context="{'default_location_id': id}">
+                                <list>
+                                    <field name="waste_type_id"/>
+                                    <field name="hauler_id"/>
+                                    <field name="container_size_l"/>
+                                    <field name="container_count"/>
+                                    <field name="schedule_summary" string="Rhythm"/>
+                                    <field name="next_pickup_date"/>
+                                    <field name="annual_cost" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Permits &amp; Inspections" name="compliance">
+                            <field name="compliance_ids" context="{'default_location_id': id}">
+                                <list decoration-danger="state == 'overdue'"
+                                      decoration-warning="state == 'due'"
+                                      default_order="due_date">
+                                    <field name="category"/>
+                                    <field name="name"/>
+                                    <field name="authority_id" optional="show"/>
+                                    <field name="reference" optional="hide"/>
+                                    <field name="last_done"/>
+                                    <field name="due_date"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'ok'"
+                                           decoration-warning="state == 'due'"
+                                           decoration-danger="state == 'overdue'"/>
+                                    <button name="action_mark_done" type="object" string="Done Today"
+                                            icon="fa-check" class="btn-link"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Key Contacts" name="contacts">
+                            <field name="contact_ids" context="{'default_location_id': id}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="role"/>
+                                    <field name="partner_id"/>
+                                    <field name="name"/>
+                                    <field name="phone" widget="phone"/>
+                                    <field name="email" widget="email" optional="show"/>
+                                    <field name="available" optional="show"/>
+                                    <field name="notes" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Access codes, alarm procedure, quirks of the building…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Search ══════════════════ -->
+    <record id="view_location_search" model="ir.ui.view">
+        <field name="name">restaurant.location.search</field>
+        <field name="model">restaurant.location</field>
+        <field name="arch" type="xml">
+            <search string="Locations">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="city"/>
+                <field name="landlord_id"/>
+                <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
+                <filter name="attention" string="Needs Attention"
+                        domain="['|', ('contract_ids.status', '=', 'expiring'), ('compliance_ids.state', 'in', ('due', 'overdue'))]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="groupby">
+                    <filter name="group_city" string="City" context="{'group_by': 'city'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_landlord" string="Landlord" context="{'group_by': 'landlord_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Action ══════════════════ -->
+    <record id="action_location" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">restaurant.location</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_location_search"/>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add your first restaurant location</p>
+            <p>Each site collects its lease, utility and insurance contracts, meters and readings,
+               waste pickups, permits and the people to call.</p>
+        </field>
+    </record>
+
+</odoo>

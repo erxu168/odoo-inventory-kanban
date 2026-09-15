@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="module_category_restaurant_location" model="ir.module.category">
+            <field name="name">Restaurant Locations</field>
+            <field name="sequence">52</field>
+        </record>
+
+        <record id="privilege_restaurant_location" model="res.groups.privilege">
+            <field name="name">Restaurant Locations</field>
+            <field name="sequence">52</field>
+            <field name="category_id" ref="module_category_restaurant_location"/>
+        </record>
+
+        <record id="group_location_user" model="res.groups">
+            <field name="name">Staff</field>
+            <field name="sequence">10</field>
+            <field name="comment">See the sites they work at, record meter readings and confirm waste pickups</field>
+            <field name="privilege_id" ref="privilege_restaurant_location"/>
+        </record>
+
+        <record id="group_location_manager" model="res.groups">
+            <field name="name">Location Manager</field>
+            <field name="sequence">20</field>
+            <field name="comment">Manage contracts, meters, waste services and permits for their own sites, including portal logins</field>
+            <field name="privilege_id" ref="privilege_restaurant_location"/>
+            <field name="implied_ids" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+
+        <record id="group_location_admin" model="res.groups">
+            <field name="name">Owner / Admin</field>
+            <field name="sequence">30</field>
+            <field name="comment">Full access across every site, including deletion and configuration</field>
+            <field name="privilege_id" ref="privilege_restaurant_location"/>
+            <field name="implied_ids" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+
+        <!-- Settings administrators get full access to the app out of the box. -->
+        <record id="base.group_system" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

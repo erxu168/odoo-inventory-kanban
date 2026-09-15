@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ Meter: list ══════════════════ -->
+    <record id="view_location_meter_list" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.list</field>
+        <field name="model">restaurant.location.meter</field>
+        <field name="arch" type="xml">
+            <list string="Meters" decoration-warning="reading_overdue">
+                <field name="location_id"/>
+                <field name="meter_type"/>
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="provider_id" optional="show"/>
+                <field name="physical_location" optional="show"/>
+                <field name="last_reading_value"/>
+                <field name="unit"/>
+                <field name="last_reading_date"/>
+                <field name="days_since_reading" string="Days Ago" optional="show"/>
+                <field name="reading_overdue" string="Overdue" widget="boolean"/>
+                <field name="calibration_due" optional="hide"/>
+                <button name="action_add_reading" type="object" string="Add Reading"
+                        icon="fa-plus" class="btn-link"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Meter: form ══════════════════ -->
+    <record id="view_location_meter_form" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.form</field>
+        <field name="model">restaurant.location.meter</field>
+        <field name="arch" type="xml">
+            <form string="Meter">
+                <header>
+                    <button name="action_add_reading" type="object" string="Add Reading"
+                            class="btn-primary" icon="fa-plus"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_readings" type="object"
+                                class="oe_stat_button" icon="fa-line-chart">
+                            <field name="reading_count" widget="statinfo" string="Readings"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Reading Overdue" bg_color="text-bg-warning"
+                            invisible="not reading_overdue"/>
+                    <div class="oe_title">
+                        <label for="name" string="Meter Number"/>
+                        <h1><field name="name" placeholder="1 ABC 12345678"/></h1>
+                    </div>
+                    <group>
+                        <group string="Meter">
+                            <field name="meter_type"/>
+                            <field name="location_id" options="{'no_create': True}"/>
+                            <field name="allowed_contract_types" invisible="1"/>
+                            <field name="contract_id"/>
+                            <field name="provider_id"/>
+                            <field name="physical_location"/>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group string="Identifiers">
+                            <field name="market_location_id"/>
+                            <field name="metering_point_id"/>
+                            <field name="grid_operator_id"/>
+                            <field name="installed_on"/>
+                            <field name="calibration_due"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Units">
+                            <field name="unit"/>
+                            <field name="conversion_factor"/>
+                        </group>
+                        <group string="Latest Reading">
+                            <field name="last_reading_value"/>
+                            <field name="last_reading_date"/>
+                            <field name="days_since_reading"/>
+                            <field name="reading_interval_days"/>
+                            <field name="reading_overdue" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Readings" name="readings">
+                            <field name="reading_ids" context="{'default_meter_id': id}">
+                                <list editable="top" default_order="date desc">
+                                    <field name="date"/>
+                                    <field name="value"/>
+                                    <field name="unit"/>
+                                    <field name="consumption"/>
+                                    <field name="days_elapsed"/>
+                                    <field name="daily_average"/>
+                                    <field name="estimated_cost" optional="show"/>
+                                    <field name="source"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="notes" optional="show"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_location_meter_search" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.search</field>
+        <field name="model">restaurant.location.meter</field>
+        <field name="arch" type="xml">
+            <search string="Meters">
+                <field name="name"/>
+                <field name="location_id"/>
+                <field name="market_location_id"/>
+                <filter name="overdue" string="Reading Overdue" domain="[('reading_overdue', '=', True)]"/>
+                <separator/>
+                <filter name="electricity" string="Electricity" domain="[('meter_type', '=', 'electricity')]"/>
+                <filter name="gas" string="Gas" domain="[('meter_type', '=', 'gas')]"/>
+                <filter name="water" string="Water" domain="[('meter_type', 'in', ('water_cold', 'water_hot'))]"/>
+                <filter name="heating" string="Heating" domain="[('meter_type', '=', 'heating')]"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'meter_type'}"/>
+                    <filter name="group_contract" string="Contract" context="{'group_by': 'contract_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_meter" model="ir.actions.act_window">
+        <field name="name">Meters</field>
+        <field name="res_model">restaurant.location.meter</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_location_meter_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No meters yet</p>
+            <p>Add each electricity, gas, water and heat meter once. Readings stay with the
+               meter even when the supplier changes.</p>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Reading: views ══════════════════ -->
+    <record id="view_location_meter_reading_list" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.reading.list</field>
+        <field name="model">restaurant.location.meter.reading</field>
+        <field name="arch" type="xml">
+            <list string="Meter Readings" default_order="date desc">
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="meter_id"/>
+                <field name="meter_type" optional="hide"/>
+                <field name="value"/>
+                <field name="unit"/>
+                <field name="consumption" sum="Total"/>
+                <field name="days_elapsed" optional="show"/>
+                <field name="daily_average" optional="show"/>
+                <field name="billed_units" optional="hide" sum="Total"/>
+                <field name="estimated_cost" optional="show" sum="Total"/>
+                <field name="contract_id" optional="hide"/>
+                <field name="source" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_location_meter_reading_form" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.reading.form</field>
+        <field name="model">restaurant.location.meter.reading</field>
+        <field name="arch" type="xml">
+            <form string="Meter Reading">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="meter_id" options="{'no_create': True}"/>
+                            <field name="location_id"/>
+                            <field name="date"/>
+                            <label for="value"/>
+                            <div class="o_row">
+                                <field name="value" class="oe_inline"/>
+                                <field name="unit" class="oe_inline"/>
+                            </div>
+                            <field name="source"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group>
+                            <field name="previous_reading_id"/>
+                            <field name="consumption"/>
+                            <field name="days_elapsed"/>
+                            <field name="daily_average"/>
+                            <field name="billed_units"/>
+                            <field name="estimated_cost"/>
+                            <field name="contract_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes"/>
+                        <field name="photo" widget="image" options="{'size': [0, 240]}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_location_meter_reading_graph" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.reading.graph</field>
+        <field name="model">restaurant.location.meter.reading</field>
+        <field name="arch" type="xml">
+            <graph string="Consumption" type="line">
+                <field name="date" interval="month"/>
+                <field name="consumption" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_location_meter_reading_pivot" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.reading.pivot</field>
+        <field name="model">restaurant.location.meter.reading</field>
+        <field name="arch" type="xml">
+            <pivot string="Consumption">
+                <field name="location_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="consumption" type="measure"/>
+                <field name="estimated_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_location_meter_reading_search" model="ir.ui.view">
+        <field name="name">restaurant.location.meter.reading.search</field>
+        <field name="model">restaurant.location.meter.reading</field>
+        <field name="arch" type="xml">
+            <search string="Readings">
+                <field name="meter_id"/>
+                <field name="location_id"/>
+                <filter name="date" string="Date" date="date"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_meter" string="Meter" context="{'group_by': 'meter_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'meter_type'}"/>
+                    <filter name="group_month" string="Month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_meter_reading" model="ir.actions.act_window">
+        <field name="name">Meter Readings</field>
+        <field name="res_model">restaurant.location.meter.reading</field>
+        <field name="view_mode">list,graph,pivot,form</field>
+        <field name="search_view_id" ref="view_location_meter_reading_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No readings yet</p>
+            <p>Type the number on the dial, the consumption since last time is worked out for you.</p>
+        </field>
+    </record>
+
+</odoo>

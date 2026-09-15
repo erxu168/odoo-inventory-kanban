@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- The fractions a German restaurant normally separates. Codes follow
+             common hauler shorthand; colours match the usual bin colours. -->
+        <record id="waste_type_restmuell" model="restaurant.location.waste.type">
+            <field name="name">Residual Waste (Restmüll)</field>
+            <field name="code">REST</field>
+            <field name="sequence">10</field>
+            <field name="color">0</field>
+            <field name="is_recycling" eval="False"/>
+            <field name="description">Mixed commercial waste for disposal. In Berlin this is the compulsory BSR bin (Pflichtrestmülltonne).</field>
+        </record>
+        <record id="waste_type_gewerbeabfall" model="restaurant.location.waste.type">
+            <field name="name">Commercial Waste (Gewerbeabfall)</field>
+            <field name="code">GEW</field>
+            <field name="sequence">15</field>
+            <field name="color">1</field>
+            <field name="is_recycling" eval="False"/>
+            <field name="description">Mixed commercial waste for recovery, collected by a private hauler.</field>
+        </record>
+        <record id="waste_type_gelbe_tonne" model="restaurant.location.waste.type">
+            <field name="name">Packaging (Gelbe Tonne / Wertstoff)</field>
+            <field name="code">GELB</field>
+            <field name="sequence">20</field>
+            <field name="color">3</field>
+            <field name="description">Sales packaging: plastics, metals, composites. Usually free under the dual system.</field>
+        </record>
+        <record id="waste_type_glas" model="restaurant.location.waste.type">
+            <field name="name">Glass (Glas)</field>
+            <field name="code">GLAS</field>
+            <field name="sequence">30</field>
+            <field name="color">10</field>
+        </record>
+        <record id="waste_type_papier" model="restaurant.location.waste.type">
+            <field name="name">Paper &amp; Cardboard (Papier / Pappe)</field>
+            <field name="code">PAP</field>
+            <field name="sequence">40</field>
+            <field name="color">4</field>
+        </record>
+        <record id="waste_type_bio" model="restaurant.location.waste.type">
+            <field name="name">Organic (Bio)</field>
+            <field name="code">BIO</field>
+            <field name="sequence">50</field>
+            <field name="color">7</field>
+            <field name="description">Kitchen scraps and plant waste. Not for food leftovers with animal content — see Food Waste.</field>
+        </record>
+        <record id="waste_type_speisereste" model="restaurant.location.waste.type">
+            <field name="name">Food Waste (Speisereste, Kat. 3)</field>
+            <field name="code">SPEI</field>
+            <field name="sequence">60</field>
+            <field name="color">2</field>
+            <field name="is_hazardous" eval="True"/>
+            <field name="default_unit">container</field>
+            <field name="description">Category-3 animal by-products under Regulation (EC) 1069/2009. Collection is proof-bound: keep the hauler's commercial document (Handelspapier).</field>
+        </record>
+        <record id="waste_type_altfett" model="restaurant.location.waste.type">
+            <field name="name">Used Cooking Oil (Altfett)</field>
+            <field name="code">FETT</field>
+            <field name="sequence">70</field>
+            <field name="color">9</field>
+            <field name="is_hazardous" eval="True"/>
+            <field name="default_unit">litre</field>
+        </record>
+        <record id="waste_type_fettabscheider" model="restaurant.location.waste.type">
+            <field name="name">Grease Trap (Fettabscheider)</field>
+            <field name="code">FABS</field>
+            <field name="sequence">80</field>
+            <field name="color">5</field>
+            <field name="is_hazardous" eval="True"/>
+            <field name="default_unit">litre</field>
+            <field name="description">Emptying and cleaning of the grease separator; DIN 4040-100 asks for at least monthly, logged in the operating diary.</field>
+        </record>
+        <record id="waste_type_sperrmuell" model="restaurant.location.waste.type">
+            <field name="name">Bulky / Other (Sperrmüll)</field>
+            <field name="code">SPER</field>
+            <field name="sequence">90</field>
+            <field name="color">6</field>
+            <field name="is_recycling" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ List ══════════════════ -->
+    <record id="view_location_contract_list" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.list</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <list string="Contracts"
+                  decoration-warning="status == 'expiring'"
+                  decoration-danger="status == 'expired'"
+                  decoration-muted="status in ('cancelled', 'draft')">
+                <field name="location_id"/>
+                <field name="contract_type"/>
+                <field name="name"/>
+                <field name="provider_id"/>
+                <field name="contract_no" optional="show"/>
+                <field name="start_date" optional="hide"/>
+                <field name="end_date"/>
+                <field name="termination_deadline"/>
+                <field name="days_to_deadline" string="Days Left" optional="hide"/>
+                <field name="auto_renewal" optional="show"/>
+                <field name="annual_cost" sum="Total"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'active'"
+                       decoration-warning="status == 'expiring'"
+                       decoration-danger="status == 'expired'"/>
+                <field name="activity_exception_decoration" widget="activity_exception"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Form ══════════════════ -->
+    <record id="view_location_contract_form" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.form</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <form string="Contract">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="status != 'draft'"/>
+                    <button name="action_renew_now" type="object" string="Extend Term"
+                            invisible="status in ('draft', 'cancelled') or not end_date"
+                            help="Push the end of term forward by one renewal period."/>
+                    <button name="action_cancel" type="object" string="Mark Cancelled"
+                            invisible="status == 'cancelled'"
+                            confirm="Mark this contract as cancelled? It will stop generating reminders."/>
+                    <button name="action_reset_active" type="object" string="Reactivate"
+                            invisible="status != 'cancelled'"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="draft,active,expiring,expired"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-danger"
+                            invisible="status != 'cancelled'"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_meters" type="object"
+                                class="oe_stat_button" icon="fa-tachometer"
+                                invisible="not is_utility">
+                            <field name="meter_count" widget="statinfo" string="Meters"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. GASAG Gewerbe Erdgas"/></h1>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert"
+                         invisible="status != 'expiring'">
+                        <i class="fa fa-exclamation-triangle me-1" title="Cancellation window"/>
+                        Cancellation window: notice must reach the provider by
+                        <field name="termination_deadline" class="fw-bold oe_inline"/>
+                        (<field name="days_to_deadline" class="fw-bold oe_inline"/> days).
+                        <span invisible="not auto_renewal">
+                            Missing it renews the contract for another
+                            <field name="renewal_months" class="fw-bold oe_inline"/> months.
+                        </span>
+                    </div>
+
+                    <group>
+                        <group string="Parties">
+                            <field name="contract_type"/>
+                            <field name="is_utility" invisible="1"/>
+                            <field name="location_id" options="{'no_create': True}"/>
+                            <field name="provider_id"
+                                   context="{'default_is_company': True}"/>
+                            <field name="contract_no"/>
+                            <field name="customer_no"/>
+                            <field name="tariff_name" invisible="contract_type in ('lease', 'insurance')"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Term &amp; Notice">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <label for="notice_value" string="Notice Period (Kündigungsfrist)"/>
+                            <div class="o_row">
+                                <field name="notice_value" class="oe_inline"/>
+                                <field name="notice_unit" class="oe_inline"/>
+                            </div>
+                            <field name="termination_deadline"
+                                   decoration-warning="status == 'expiring'"/>
+                            <field name="auto_renewal"/>
+                            <field name="renewal_months" invisible="not auto_renewal"/>
+                            <field name="price_fixed_until" invisible="not is_utility and contract_type != 'telecom'"/>
+                            <field name="cancelled_on" invisible="not cancelled_on"/>
+                            <field name="replaced_by_id" invisible="status not in ('cancelled', 'expired') and not replaced_by_id"
+                                   domain="[('location_id', '=', location_id), ('id', '!=', id)]"/>
+                        </group>
+                    </group>
+
+                    <!-- Lease -->
+                    <group string="Lease (Mietvertrag)" invisible="contract_type != 'lease'">
+                        <group>
+                            <field name="rent_net"/>
+                            <field name="rent_charges"/>
+                            <field name="rent_vat"/>
+                            <field name="rent_total" class="fw-bold"/>
+                        </group>
+                        <group>
+                            <field name="deposit"/>
+                            <field name="deposit_paid_on"/>
+                            <field name="leased_area_sqm"/>
+                            <field name="rent_indexed"/>
+                            <field name="rent_step_note"/>
+                        </group>
+                    </group>
+
+                    <!-- Supply -->
+                    <group string="Prices (Konditionen)" invisible="not is_utility">
+                        <group>
+                            <field name="base_fee"/>
+                            <label for="unit_price"/>
+                            <div class="o_row">
+                                <field name="unit_price" class="oe_inline"/>
+                                <span>per</span>
+                                <field name="unit_label" class="oe_inline" placeholder="kWh"/>
+                            </div>
+                            <field name="monthly_installment"/>
+                        </group>
+                        <group>
+                            <field name="expected_annual_usage"/>
+                        </group>
+                    </group>
+
+                    <!-- Insurance -->
+                    <group string="Policy (Versicherungsschein)" invisible="contract_type != 'insurance'">
+                        <group>
+                            <field name="insurance_kind"/>
+                            <field name="policy_no"/>
+                            <field name="coverage_sum"/>
+                            <field name="deductible"/>
+                        </group>
+                        <group>
+                            <field name="main_due_date"/>
+                            <field name="broker_id"/>
+                            <field name="claims_phone" widget="phone"/>
+                        </group>
+                    </group>
+
+                    <!-- Telecom -->
+                    <group string="Lines" invisible="contract_type != 'telecom'">
+                        <group>
+                            <field name="phone_numbers"/>
+                        </group>
+                        <group>
+                            <field name="bandwidth"/>
+                        </group>
+                    </group>
+
+                    <!-- Service -->
+                    <group string="Service Schedule" invisible="contract_type not in ('service', 'waste')">
+                        <group>
+                            <field name="service_scope"/>
+                            <field name="service_interval_months"/>
+                        </group>
+                        <group>
+                            <field name="last_service_date"/>
+                            <field name="next_service_date"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Recurring Cost" invisible="contract_type == 'lease'">
+                            <label for="amount" invisible="is_utility"/>
+                            <div class="o_row" invisible="is_utility">
+                                <field name="amount" class="oe_inline"/>
+                                <field name="frequency" class="oe_inline"/>
+                            </div>
+                            <field name="annual_cost" class="fw-bold"/>
+                            <field name="payment_method"/>
+                            <field name="payment_day"/>
+                            <field name="cost_center_note"/>
+                        </group>
+                        <group string="Recurring Cost" invisible="contract_type != 'lease'">
+                            <field name="annual_cost" class="fw-bold"/>
+                            <field name="payment_method"/>
+                            <field name="payment_day"/>
+                            <field name="cost_center_note"/>
+                        </group>
+                        <group string="Provider Portal">
+                            <field name="portal_url" widget="url"/>
+                            <field name="portal_login" groups="restaurant_location.group_location_manager"/>
+                            <field name="portal_password" password="True"
+                                   groups="restaurant_location.group_location_manager"/>
+                            <field name="verification_code" password="True"
+                                   groups="restaurant_location.group_location_manager"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Meters" name="meters" invisible="not is_utility">
+                            <field name="meter_ids"
+                                   context="{'default_location_id': location_id, 'default_contract_id': id}">
+                                <list>
+                                    <field name="meter_type"/>
+                                    <field name="name"/>
+                                    <field name="physical_location"/>
+                                    <field name="last_reading_value"/>
+                                    <field name="unit"/>
+                                    <field name="last_reading_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents" name="documents">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Calendar (deadlines) ══════════════════ -->
+    <record id="view_location_contract_calendar" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.calendar</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <calendar string="Cancellation Deadlines" date_start="termination_deadline"
+                      color="location_id" mode="month" quick_create="0" event_open_popup="1">
+                <field name="name"/>
+                <field name="location_id"/>
+                <field name="provider_id"/>
+                <field name="contract_type"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Pivot / Graph ══════════════════ -->
+    <record id="view_location_contract_pivot" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.pivot</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <pivot string="Annual Cost">
+                <field name="location_id" type="row"/>
+                <field name="contract_type" type="col"/>
+                <field name="annual_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_location_contract_graph" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.graph</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <graph string="Annual Cost" type="bar" stacked="1">
+                <field name="location_id"/>
+                <field name="contract_type"/>
+                <field name="annual_cost" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Search ══════════════════ -->
+    <record id="view_location_contract_search" model="ir.ui.view">
+        <field name="name">restaurant.location.contract.search</field>
+        <field name="model">restaurant.location.contract</field>
+        <field name="arch" type="xml">
+            <search string="Contracts">
+                <field name="name"/>
+                <field name="contract_no"/>
+                <field name="customer_no"/>
+                <field name="provider_id"/>
+                <field name="location_id"/>
+                <filter name="running" string="Running" domain="[('status', 'in', ('active', 'expiring'))]"/>
+                <filter name="expiring" string="Cancellation Window" domain="[('status', '=', 'expiring')]"/>
+                <filter name="expired" string="Expired" domain="[('status', '=', 'expired')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('status', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="type_lease" string="Lease" domain="[('contract_type', '=', 'lease')]"/>
+                <filter name="type_utility" string="Utilities"
+                        domain="[('contract_type', 'in', ('electricity', 'gas', 'water', 'heating'))]"/>
+                <filter name="type_insurance" string="Insurance" domain="[('contract_type', '=', 'insurance')]"/>
+                <filter name="type_waste" string="Waste" domain="[('contract_type', '=', 'waste')]"/>
+                <filter name="type_telecom" string="Telecom" domain="[('contract_type', '=', 'telecom')]"/>
+                <filter name="type_service" string="Service" domain="[('contract_type', '=', 'service')]"/>
+                <separator/>
+                <filter name="auto_renewal" string="Auto-Renews" domain="[('auto_renewal', '=', True)]"/>
+                <filter name="deadline" string="Cancel By" date="termination_deadline"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'contract_type'}"/>
+                    <filter name="group_provider" string="Provider" context="{'group_by': 'provider_id'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Action ══════════════════ -->
+    <record id="action_location_contract" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">restaurant.location.contract</field>
+        <field name="view_mode">list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_location_contract_search"/>
+        <field name="context">{'search_default_running': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No contracts yet</p>
+            <p>Record every lease, utility, insurance, telecom and service contract with its
+               notice period, and the cancellation deadline is computed for you.</p>
+        </field>
+    </record>
+
+    <record id="action_location_contract_deadlines" model="ir.actions.act_window">
+        <field name="name">Cancellation Deadlines</field>
+        <field name="res_model">restaurant.location.contract</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="search_view_id" ref="view_location_contract_search"/>
+        <field name="domain">[('termination_deadline', '!=', False), ('status', 'in', ('active', 'expiring'))]</field>
+    </record>
+
+</odoo>

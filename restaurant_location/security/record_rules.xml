@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ── Who sees which site ──
+             Staff and managers see the sites they are listed on; admins see
+             all. Every satellite model follows its location. -->
+
+        <record id="rule_location_user" model="ir.rule">
+            <field name="name">Location: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location"/>
+            <field name="domain_force">['|', ('staff_user_ids', 'in', [user.id]), ('manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_location_manager" model="ir.rule">
+            <field name="name">Location: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location"/>
+            <field name="domain_force">['|', ('staff_user_ids', 'in', [user.id]), ('manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_location_admin" model="ir.rule">
+            <field name="name">Location: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_contract_user" model="ir.rule">
+            <field name="name">Contract: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_contract"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_contract_manager" model="ir.rule">
+            <field name="name">Contract: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_contract"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_contract_admin" model="ir.rule">
+            <field name="name">Contract: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_contract"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_meter_user" model="ir.rule">
+            <field name="name">Meter: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_meter"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_meter_manager" model="ir.rule">
+            <field name="name">Meter: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_meter"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_meter_admin" model="ir.rule">
+            <field name="name">Meter: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_meter"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_meter_reading_user" model="ir.rule">
+            <field name="name">Meter Reading: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_meter_reading"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_meter_reading_manager" model="ir.rule">
+            <field name="name">Meter Reading: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_meter_reading"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_meter_reading_admin" model="ir.rule">
+            <field name="name">Meter Reading: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_meter_reading"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_waste_stream_user" model="ir.rule">
+            <field name="name">Waste Stream: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_waste_stream"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_waste_stream_manager" model="ir.rule">
+            <field name="name">Waste Stream: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_waste_stream"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_waste_stream_admin" model="ir.rule">
+            <field name="name">Waste Stream: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_waste_stream"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_waste_pickup_user" model="ir.rule">
+            <field name="name">Waste Pickup: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_waste_pickup"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_waste_pickup_manager" model="ir.rule">
+            <field name="name">Waste Pickup: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_waste_pickup"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_waste_pickup_admin" model="ir.rule">
+            <field name="name">Waste Pickup: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_waste_pickup"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_compliance_user" model="ir.rule">
+            <field name="name">Permit / Inspection: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_compliance"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_compliance_manager" model="ir.rule">
+            <field name="name">Permit / Inspection: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_compliance"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_compliance_admin" model="ir.rule">
+            <field name="name">Permit / Inspection: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_compliance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <record id="rule_contact_user" model="ir.rule">
+            <field name="name">Location Contact: staff see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_contact"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_user'))]"/>
+        </record>
+        <record id="rule_contact_manager" model="ir.rule">
+            <field name="name">Location Contact: managers see their sites</field>
+            <field name="model_id" ref="model_restaurant_location_contact"/>
+            <field name="domain_force">['|', ('location_id.staff_user_ids', 'in', [user.id]), ('location_id.manager_user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_location_manager'))]"/>
+        </record>
+        <record id="rule_contact_admin" model="ir.rule">
+            <field name="name">Location Contact: admins see all</field>
+            <field name="model_id" ref="model_restaurant_location_contact"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_location_admin'))]"/>
+        </record>
+
+        <!-- ── Multi-company ── -->
+        <record id="rule_location_company" model="ir.rule">
+            <field name="name">Location: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_contract_company" model="ir.rule">
+            <field name="name">Contract: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_contract"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_meter_company" model="ir.rule">
+            <field name="name">Meter: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_meter"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_meter_reading_company" model="ir.rule">
+            <field name="name">Meter Reading: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_meter_reading"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_waste_stream_company" model="ir.rule">
+            <field name="name">Waste Stream: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_waste_stream"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_waste_pickup_company" model="ir.rule">
+            <field name="name">Waste Pickup: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_waste_pickup"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_compliance_company" model="ir.rule">
+            <field name="name">Permit / Inspection: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_compliance"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_contact_company" model="ir.rule">
+            <field name="name">Location Contact: multi-company</field>
+            <field name="model_id" ref="model_restaurant_location_contact"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ Types ══════════════════ -->
+    <record id="view_location_compliance_type_list" model="ir.ui.view">
+        <field name="name">restaurant.location.compliance.type.list</field>
+        <field name="model">restaurant.location.compliance.type</field>
+        <field name="arch" type="xml">
+            <list string="Permit &amp; Inspection Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="interval_months"/>
+                <field name="reminder_days"/>
+                <field name="is_standard"/>
+                <field name="legal_basis" optional="show"/>
+                <field name="description" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_location_compliance_type" model="ir.actions.act_window">
+        <field name="name">Permit &amp; Inspection Types</field>
+        <field name="res_model">restaurant.location.compliance.type</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ══════════════════ Items ══════════════════ -->
+    <record id="view_location_compliance_list" model="ir.ui.view">
+        <field name="name">restaurant.location.compliance.list</field>
+        <field name="model">restaurant.location.compliance</field>
+        <field name="arch" type="xml">
+            <list string="Permits &amp; Inspections"
+                  decoration-danger="state == 'overdue'"
+                  decoration-warning="state == 'due'">
+                <field name="location_id"/>
+                <field name="category"/>
+                <field name="name"/>
+                <field name="authority_id" optional="show"/>
+                <field name="reference" optional="hide"/>
+                <field name="last_done"/>
+                <field name="due_date"/>
+                <field name="days_left" optional="show"/>
+                <field name="interval_months" optional="hide"/>
+                <field name="cost" optional="hide" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'ok'"
+                       decoration-warning="state == 'due'"
+                       decoration-danger="state == 'overdue'"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <button name="action_mark_done" type="object" string="Done Today"
+                        icon="fa-check" class="btn-link"/>
+                <field name="activity_exception_decoration" widget="activity_exception"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_location_compliance_form" model="ir.ui.view">
+        <field name="name">restaurant.location.compliance.form</field>
+        <field name="model">restaurant.location.compliance</field>
+        <field name="arch" type="xml">
+            <form string="Permit / Inspection">
+                <header>
+                    <button name="action_mark_done" type="object" string="Done Today"
+                            class="btn-primary" icon="fa-check"/>
+                    <field name="state" widget="statusbar" statusbar_visible="ok,due,overdue"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger"
+                            invisible="state != 'overdue'"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Grease Trap Emptying"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type_id" options="{'no_create': True}"/>
+                            <field name="category"/>
+                            <field name="location_id" options="{'no_create': True}"/>
+                            <field name="authority_id"/>
+                            <field name="reference"/>
+                            <field name="contract_id"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="last_done"/>
+                            <field name="interval_months"/>
+                            <field name="due_date"/>
+                            <field name="days_left"/>
+                            <field name="reminder_days"/>
+                            <field name="cost"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Certificates" name="documents">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_location_compliance_calendar" model="ir.ui.view">
+        <field name="name">restaurant.location.compliance.calendar</field>
+        <field name="model">restaurant.location.compliance</field>
+        <field name="arch" type="xml">
+            <calendar string="Due Dates" date_start="due_date" color="location_id"
+                      mode="month" quick_create="0" event_open_popup="1" hide_time="1">
+                <field name="name"/>
+                <field name="location_id" filters="1"/>
+                <field name="category"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_location_compliance_search" model="ir.ui.view">
+        <field name="name">restaurant.location.compliance.search</field>
+        <field name="model">restaurant.location.compliance</field>
+        <field name="arch" type="xml">
+            <search string="Permits &amp; Inspections">
+                <field name="name"/>
+                <field name="location_id"/>
+                <field name="authority_id"/>
+                <field name="reference"/>
+                <filter name="due" string="Due Soon" domain="[('state', '=', 'due')]"/>
+                <filter name="overdue" string="Overdue" domain="[('state', '=', 'overdue')]"/>
+                <filter name="ok" string="OK" domain="[('state', '=', 'ok')]"/>
+                <separator/>
+                <filter name="permits" string="Permits" domain="[('category', 'in', ('permit', 'registration'))]"/>
+                <filter name="inspections" string="Inspections &amp; Checks" domain="[('category', 'in', ('inspection', 'safety_check'))]"/>
+                <filter name="maintenance" string="Maintenance" domain="[('category', '=', 'maintenance')]"/>
+                <filter name="training" string="Training" domain="[('category', '=', 'training')]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_compliance" model="ir.actions.act_window">
+        <field name="name">Permits &amp; Inspections</field>
+        <field name="res_model">restaurant.location.compliance</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="search_view_id" ref="view_location_compliance_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing tracked yet</p>
+            <p>Open a location and press <b>Add Standard Checks</b> to seed the usual
+               obligations, or add licences and inspections one by one.</p>
+        </field>
+    </record>
+
+</odoo>

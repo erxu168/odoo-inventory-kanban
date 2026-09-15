@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════ Waste type ══════════════════ -->
+    <record id="view_location_waste_type_list" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.type.list</field>
+        <field name="model">restaurant.location.waste.type</field>
+        <field name="arch" type="xml">
+            <list string="Waste Stream Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="color" widget="color_picker"/>
+                <field name="is_recycling"/>
+                <field name="is_hazardous"/>
+                <field name="default_unit"/>
+                <field name="description" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_location_waste_type" model="ir.actions.act_window">
+        <field name="name">Waste Stream Types</field>
+        <field name="res_model">restaurant.location.waste.type</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ══════════════════ Waste stream ══════════════════ -->
+    <record id="view_location_waste_stream_list" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.stream.list</field>
+        <field name="model">restaurant.location.waste.stream</field>
+        <field name="arch" type="xml">
+            <list string="Waste Streams">
+                <field name="location_id"/>
+                <field name="waste_type_id"/>
+                <field name="hauler_id"/>
+                <field name="container_size_l"/>
+                <field name="container_count"/>
+                <field name="schedule_summary" string="Rhythm"/>
+                <field name="next_pickup_date"/>
+                <field name="cost_per_pickup" optional="hide"/>
+                <field name="monthly_fee" optional="hide"/>
+                <field name="annual_cost" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_location_waste_stream_form" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.stream.form</field>
+        <field name="model">restaurant.location.waste.stream</field>
+        <field name="arch" type="xml">
+            <form string="Waste Stream">
+                <header>
+                    <button name="action_generate_pickups" type="object" string="Plan Pickups"
+                            icon="fa-calendar" class="btn-secondary"
+                            invisible="schedule == 'on_call'"
+                            help="Lay the next weeks of collections out on the calendar."/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickups" type="object"
+                                class="oe_stat_button" icon="fa-calendar-check-o">
+                            <field name="pickup_count" widget="statinfo" string="Pickups"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="What &amp; Who">
+                            <field name="waste_type_id" options="{'no_create': True}"/>
+                            <field name="location_id" options="{'no_create': True}"/>
+                            <field name="hauler_id" context="{'default_is_company': True}"/>
+                            <field name="contract_id"/>
+                            <field name="customer_no"/>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Containers">
+                            <field name="container_size_l"/>
+                            <field name="container_count"/>
+                            <field name="container_location"/>
+                            <field name="key_required"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Pickup Rhythm">
+                            <field name="schedule"/>
+                            <field name="weekday" invisible="schedule == 'on_call'"
+                                   required="schedule != 'on_call'"/>
+                            <field name="weekday_2" invisible="schedule != 'weekly'"/>
+                            <field name="nth_weekday" invisible="schedule != 'monthly'"/>
+                            <field name="schedule_summary" class="fw-bold"/>
+                            <field name="next_pickup_date"/>
+                            <field name="generate_horizon_weeks"/>
+                            <field name="schedule_note"/>
+                        </group>
+                        <group string="Cost">
+                            <field name="cost_per_pickup"/>
+                            <field name="monthly_fee"/>
+                            <field name="annual_cost" class="fw-bold"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Pickups" name="pickups">
+                            <field name="pickup_ids">
+                                <list default_order="date desc"
+                                      decoration-success="state == 'done'"
+                                      decoration-danger="state == 'missed'"
+                                      decoration-muted="state == 'cancelled'">
+                                    <field name="date"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'done'"
+                                           decoration-danger="state == 'missed'"
+                                           decoration-info="state == 'planned'"/>
+                                    <field name="container_count"/>
+                                    <field name="weight_kg" optional="hide"/>
+                                    <field name="certificate_no" optional="show"/>
+                                    <field name="confirmed_by_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="notes" optional="show"/>
+                                    <button name="action_done" type="object" string="Collected"
+                                            icon="fa-check" class="btn-link" invisible="state != 'planned'"/>
+                                    <button name="action_missed" type="object" string="Missed"
+                                            icon="fa-times" class="btn-link" invisible="state != 'planned'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_location_waste_stream_search" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.stream.search</field>
+        <field name="model">restaurant.location.waste.stream</field>
+        <field name="arch" type="xml">
+            <search string="Waste Streams">
+                <field name="waste_type_id"/>
+                <field name="location_id"/>
+                <field name="hauler_id"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_type" string="Waste Stream" context="{'group_by': 'waste_type_id'}"/>
+                    <filter name="group_hauler" string="Hauler" context="{'group_by': 'hauler_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_waste_stream" model="ir.actions.act_window">
+        <field name="name">Waste &amp; Recycling</field>
+        <field name="res_model">restaurant.location.waste.stream</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_location_waste_stream_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No waste streams yet</p>
+            <p>One record per container service: residual, packaging, glass, paper, organic,
+               food waste, cooking oil… each with its own hauler and pickup rhythm.</p>
+        </field>
+    </record>
+
+    <!-- ══════════════════ Pickups ══════════════════ -->
+    <record id="view_location_waste_pickup_calendar" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.pickup.calendar</field>
+        <field name="model">restaurant.location.waste.pickup</field>
+        <field name="arch" type="xml">
+            <calendar string="Pickup Calendar" date_start="date" color="waste_type_id"
+                      mode="month" quick_create="0" event_open_popup="1" hide_time="1">
+                <field name="waste_type_id" filters="1"/>
+                <field name="location_id" filters="1"/>
+                <field name="hauler_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_location_waste_pickup_list" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.pickup.list</field>
+        <field name="model">restaurant.location.waste.pickup</field>
+        <field name="arch" type="xml">
+            <list string="Pickups"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'missed'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="waste_type_id"/>
+                <field name="hauler_id"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'missed'"
+                       decoration-info="state == 'planned'"/>
+                <field name="container_count"/>
+                <field name="weight_kg" optional="hide" sum="Total"/>
+                <field name="certificate_no" optional="show"/>
+                <field name="confirmed_by_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="notes" optional="show"/>
+                <button name="action_done" type="object" string="Collected"
+                        icon="fa-check" class="btn-link" invisible="state != 'planned'"/>
+                <button name="action_missed" type="object" string="Missed"
+                        icon="fa-times" class="btn-link" invisible="state != 'planned'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_location_waste_pickup_form" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.pickup.form</field>
+        <field name="model">restaurant.location.waste.pickup</field>
+        <field name="arch" type="xml">
+            <form string="Pickup">
+                <header>
+                    <button name="action_done" type="object" string="Collected"
+                            class="btn-primary" invisible="state != 'planned'"/>
+                    <button name="action_missed" type="object" string="Missed"
+                            invisible="state != 'planned'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state != 'planned'"/>
+                    <button name="action_reset" type="object" string="Reset to Planned"
+                            invisible="state == 'planned'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="planned,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="stream_id" options="{'no_create': True}"/>
+                            <field name="location_id"/>
+                            <field name="waste_type_id"/>
+                            <field name="hauler_id"/>
+                            <field name="date"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="container_count"/>
+                            <field name="weight_kg"/>
+                            <field name="certificate_no"/>
+                            <field name="confirmed_by_id" widget="many2one_avatar_user"/>
+                            <field name="confirmed_on"/>
+                            <field name="notes"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_location_waste_pickup_search" model="ir.ui.view">
+        <field name="name">restaurant.location.waste.pickup.search</field>
+        <field name="model">restaurant.location.waste.pickup</field>
+        <field name="arch" type="xml">
+            <search string="Pickups">
+                <field name="location_id"/>
+                <field name="waste_type_id"/>
+                <field name="hauler_id"/>
+                <field name="certificate_no"/>
+                <filter name="planned" string="Planned" domain="[('state', '=', 'planned')]"/>
+                <filter name="done" string="Collected" domain="[('state', '=', 'done')]"/>
+                <filter name="missed" string="Missed" domain="[('state', '=', 'missed')]"/>
+                <separator/>
+                <filter name="this_week" string="This Week"
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                 ('date', '&lt;=', (context_today() + relativedelta(days=6 - context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter name="date" string="Date" date="date"/>
+                <group name="groupby">
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_type" string="Waste Stream" context="{'group_by': 'waste_type_id'}"/>
+                    <filter name="group_hauler" string="Hauler" context="{'group_by': 'hauler_id'}"/>
+                    <filter name="group_week" string="Week" context="{'group_by': 'date:week'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_waste_pickup" model="ir.actions.act_window">
+        <field name="name">Pickup Calendar</field>
+        <field name="res_model">restaurant.location.waste.pickup</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="search_view_id" ref="view_location_waste_pickup_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No pickups planned</p>
+            <p>Pickups are laid out automatically from each waste stream's rhythm.
+               Tick them off as the bins are emptied to keep the disposal record.</p>
+        </field>
+    </record>
+
+</odoo>

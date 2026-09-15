@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Standard obligations for a German restaurant site. Intervals are
+             the usual ones; the item on each site can override them. -->
+        <record id="compliance_type_gewerbeanmeldung" model="restaurant.location.compliance.type">
+            <field name="name">Trade Registration (Gewerbeanmeldung)</field>
+            <field name="sequence">10</field>
+            <field name="category">registration</field>
+            <field name="interval_months">0</field>
+            <field name="reminder_days">0</field>
+            <field name="legal_basis">§ 14 GewO</field>
+        </record>
+        <record id="compliance_type_gaststaettenerlaubnis" model="restaurant.location.compliance.type">
+            <field name="name">Restaurant Licence (Gaststättenerlaubnis)</field>
+            <field name="sequence">20</field>
+            <field name="category">permit</field>
+            <field name="interval_months">0</field>
+            <field name="reminder_days">60</field>
+            <field name="legal_basis">GastG / Landesgaststättengesetz</field>
+            <field name="description">Bound to the person and the premises; re-apply when either changes.</field>
+        </record>
+        <record id="compliance_type_food_inspection" model="restaurant.location.compliance.type">
+            <field name="name">Food Safety Inspection (Lebensmittelüberwachung)</field>
+            <field name="sequence">30</field>
+            <field name="category">inspection</field>
+            <field name="interval_months">12</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">LFGB / VO (EG) 852/2004</field>
+            <field name="is_standard" eval="False"/>
+            <field name="description">Unannounced; record the last visit and its findings here.</field>
+        </record>
+        <record id="compliance_type_ifsg" model="restaurant.location.compliance.type">
+            <field name="name">Hygiene Briefing (IfSG § 43 Folgebelehrung)</field>
+            <field name="sequence">40</field>
+            <field name="category">training</field>
+            <field name="interval_months">24</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">§ 43 IfSG</field>
+            <field name="description">Staff handling food need the follow-up briefing every two years.</field>
+        </record>
+        <record id="compliance_type_fettabscheider_emptying" model="restaurant.location.compliance.type">
+            <field name="name">Grease Trap Emptying (Fettabscheider-Entleerung)</field>
+            <field name="sequence">50</field>
+            <field name="category">maintenance</field>
+            <field name="interval_months">1</field>
+            <field name="reminder_days">7</field>
+            <field name="legal_basis">DIN 4040-100 / DIN EN 1825-2</field>
+            <field name="description">Full emptying and cleaning at least monthly; keep the disposal certificate in the operating diary.</field>
+        </record>
+        <record id="compliance_type_fettabscheider_inspection" model="restaurant.location.compliance.type">
+            <field name="name">Grease Trap General Inspection (Generalinspektion)</field>
+            <field name="sequence">55</field>
+            <field name="category">safety_check</field>
+            <field name="interval_months">60</field>
+            <field name="reminder_days">90</field>
+            <field name="legal_basis">DIN 4040-100</field>
+            <field name="description">Every five years by a qualified inspector, before first use and after major changes.</field>
+        </record>
+        <record id="compliance_type_hood_cleaning" model="restaurant.location.compliance.type">
+            <field name="name">Kitchen Exhaust Cleaning (Abluftreinigung)</field>
+            <field name="sequence">60</field>
+            <field name="category">maintenance</field>
+            <field name="interval_months">12</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">VDI 2052 / VdS 2056</field>
+            <field name="description">Hood, ducts and fan; keep the cleaning certificate for the insurer.</field>
+        </record>
+        <record id="compliance_type_fire_extinguishers" model="restaurant.location.compliance.type">
+            <field name="name">Fire Extinguishers Check (Feuerlöscherprüfung)</field>
+            <field name="sequence">70</field>
+            <field name="category">safety_check</field>
+            <field name="interval_months">24</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">DIN 14406-4 / DGUV</field>
+        </record>
+        <record id="compliance_type_dguv_v3" model="restaurant.location.compliance.type">
+            <field name="name">Electrical Safety Check (DGUV V3)</field>
+            <field name="sequence">80</field>
+            <field name="category">safety_check</field>
+            <field name="interval_months">12</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">DGUV Vorschrift 3</field>
+            <field name="description">Portable appliances; fixed installations every four years.</field>
+        </record>
+        <record id="compliance_type_schankanlage" model="restaurant.location.compliance.type">
+            <field name="name">Dispensing System Check (Schankanlagenprüfung)</field>
+            <field name="sequence">90</field>
+            <field name="category">safety_check</field>
+            <field name="interval_months">24</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">DGUV Regel 110-007</field>
+            <field name="is_standard" eval="False"/>
+        </record>
+        <record id="compliance_type_pest_control" model="restaurant.location.compliance.type">
+            <field name="name">Pest Control Visit (Schädlingsmonitoring)</field>
+            <field name="sequence">100</field>
+            <field name="category">maintenance</field>
+            <field name="interval_months">3</field>
+            <field name="reminder_days">14</field>
+            <field name="legal_basis">HACCP</field>
+        </record>
+        <record id="compliance_type_first_aid" model="restaurant.location.compliance.type">
+            <field name="name">First Aider Refresher (Ersthelfer-Fortbildung)</field>
+            <field name="sequence">110</field>
+            <field name="category">training</field>
+            <field name="interval_months">24</field>
+            <field name="reminder_days">30</field>
+            <field name="legal_basis">DGUV Vorschrift 1</field>
+        </record>
+        <record id="compliance_type_gema" model="restaurant.location.compliance.type">
+            <field name="name">Music Licence (GEMA)</field>
+            <field name="sequence">120</field>
+            <field name="category">permit</field>
+            <field name="interval_months">12</field>
+            <field name="reminder_days">30</field>
+            <field name="is_standard" eval="False"/>
+        </record>
+        <record id="compliance_type_outdoor_seating" model="restaurant.location.compliance.type">
+            <field name="name">Outdoor Seating Permit (Sondernutzung)</field>
+            <field name="sequence">130</field>
+            <field name="category">permit</field>
+            <field name="interval_months">12</field>
+            <field name="reminder_days">60</field>
+            <field name="legal_basis">Berliner Straßengesetz § 11</field>
+            <field name="is_standard" eval="False"/>
+        </record>
+    </data>
+</odoo>

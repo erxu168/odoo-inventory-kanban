@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="cron_contract_deadlines" model="ir.cron">
+            <field name="name">Restaurant Locations: Contract Deadlines &amp; Auto-Renewals</field>
+            <field name="model_id" ref="model_restaurant_location_contract"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_termination_alerts()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="cron_meter_reading_reminders" model="ir.cron">
+            <field name="name">Restaurant Locations: Meter Reading Reminders</field>
+            <field name="model_id" ref="model_restaurant_location_meter"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_reading_reminders()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="cron_waste_pickups" model="ir.cron">
+            <field name="name">Restaurant Locations: Plan Waste Pickups</field>
+            <field name="model_id" ref="model_restaurant_location_waste_stream"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_generate_pickups()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="cron_compliance_due" model="ir.cron">
+            <field name="name">Restaurant Locations: Permit &amp; Inspection Reminders</field>
+            <field name="model_id" ref="model_restaurant_location_compliance"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_due()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

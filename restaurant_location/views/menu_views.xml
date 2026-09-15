@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_restaurant_location_root"
+              name="Locations"
+              web_icon="restaurant_location,static/description/icon.png"
+              sequence="52"/>
+
+    <menuitem id="menu_location_locations"
+              name="Locations"
+              parent="menu_restaurant_location_root"
+              action="action_location"
+              sequence="10"/>
+
+    <menuitem id="menu_location_contracts"
+              name="Contracts"
+              parent="menu_restaurant_location_root"
+              sequence="20"/>
+    <menuitem id="menu_location_contracts_all"
+              name="All Contracts"
+              parent="menu_location_contracts"
+              action="action_location_contract"
+              sequence="10"/>
+    <menuitem id="menu_location_contracts_deadlines"
+              name="Cancellation Deadlines"
+              parent="menu_location_contracts"
+              action="action_location_contract_deadlines"
+              sequence="20"/>
+
+    <menuitem id="menu_location_meters"
+              name="Meters"
+              parent="menu_restaurant_location_root"
+              sequence="30"/>
+    <menuitem id="menu_location_meters_all"
+              name="Meters"
+              parent="menu_location_meters"
+              action="action_location_meter"
+              sequence="10"/>
+    <menuitem id="menu_location_meter_readings"
+              name="Readings"
+              parent="menu_location_meters"
+              action="action_location_meter_reading"
+              sequence="20"/>
+
+    <menuitem id="menu_location_waste"
+              name="Waste &amp; Recycling"
+              parent="menu_restaurant_location_root"
+              sequence="40"/>
+    <menuitem id="menu_location_waste_calendar"
+              name="Pickup Calendar"
+              parent="menu_location_waste"
+              action="action_location_waste_pickup"
+              sequence="10"/>
+    <menuitem id="menu_location_waste_streams"
+              name="Waste Streams"
+              parent="menu_location_waste"
+              action="action_location_waste_stream"
+              sequence="20"/>
+
+    <menuitem id="menu_location_compliance"
+              name="Permits &amp; Inspections"
+              parent="menu_restaurant_location_root"
+              action="action_location_compliance"
+              sequence="50"/>
+
+    <menuitem id="menu_location_config"
+              name="Configuration"
+              parent="menu_restaurant_location_root"
+              sequence="90"
+              groups="restaurant_location.group_location_manager"/>
+    <menuitem id="menu_location_config_waste_types"
+              name="Waste Stream Types"
+              parent="menu_location_config"
+              action="action_location_waste_type"
+              sequence="10"/>
+    <menuitem id="menu_location_config_compliance_types"
+              name="Permit &amp; Inspection Types"
+              parent="menu_location_config"
+              action="action_location_compliance_type"
+              sequence="20"/>
+
+</odoo>
